@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 700" width="1280" height="700" role="img" aria-labelledby="t d">
+<title id="t">Share of Commons files without a depicts statement, by collection</title>
+<desc id="d">Horizontal bars: Aargau society collection 99.6%, ETH-Bibliothek 91% (sample), Zentralbibliothek Zürich 9.5%, Museum Rietberg 8.6%, UZH Ethnographic Museum Sevruguin photos 0%.</desc>
+<style>
+svg{--surface:#fcfcfb;--ink:#0b0b0b;--ink2:#52514e;--muted:#6f6e69;--grid:#e3e2de;--bar:#2a78d6;--accent:#eb6834}
+@media (prefers-color-scheme: dark){svg{--surface:#1a1a19;--ink:#f0efec;--ink2:#c3c2b7;--muted:#a3a29a;--grid:#3a3a37;--bar:#3987e5;--accent:#d95926}}
+text{font-family:-apple-system,"Helvetica Neue",Arial,sans-serif}
+.bg{fill:var(--surface)}.ink{fill:var(--ink)}.ink2{fill:var(--ink2)}.mut{fill:var(--muted)}
+.grid{stroke:var(--grid);stroke-width:1}.bar{fill:var(--bar)}.acc{fill:var(--accent)}
+</style>
+<rect class="bg" width="1280" height="700"/>
+<text class="ink" x="48" y="64" font-size="30" font-weight="700">Share of Commons files without a depicts (P180) statement</text>
+<text class="ink2" x="48" y="100" font-size="18">Selected collections, measured with QLever, 23 Oct 2026</text>
+<line class="grid" x1="500.0" y1="140" x2="500.0" y2="560"/>
+<text class="mut" x="500.0" y="586" font-size="15" text-anchor="middle">0%</text>
+<line class="grid" x1="635.0" y1="140" x2="635.0" y2="560"/>
+<text class="mut" x="635.0" y="586" font-size="15" text-anchor="middle">25%</text>
+<line class="grid" x1="770.0" y1="140" x2="770.0" y2="560"/>
+<text class="mut" x="770.0" y="586" font-size="15" text-anchor="middle">50%</text>
+<line class="grid" x1="905.0" y1="140" x2="905.0" y2="560"/>
+<text class="mut" x="905.0" y="586" font-size="15" text-anchor="middle">75%</text>
+<line class="grid" x1="1040.0" y1="140" x2="1040.0" y2="560"/>
+<text class="mut" x="1040.0" y="586" font-size="15" text-anchor="middle">100%</text>
+<text class="ink" x="48" y="172" font-size="19" font-weight="600">Aargau society collection (#319)</text>
+<text class="mut" x="48" y="196" font-size="14">P195: none  ·  full count</text>
+<path class="bar" d="M500,158.0 h533.8 a4,4 0 0 1 4,4 v16 a4,4 0 0 1 -4,4 h-533.8 z"><title>Aargau society collection (#319): 2,741 of 2,751 without depicts (99.6%)</title></path>
+<text class="ink" x="1049.8" y="174" font-size="20" font-weight="700">99.6%</text>
+<text class="mut" x="1049.8" y="194" font-size="14">2,741 of 2,751</text>
+<text class="ink" x="48" y="256" font-size="19" font-weight="600">ETH-Bibliothek (all media)</text>
+<text class="mut" x="48" y="280" font-size="14">P195: none in sample  ·  random sample</text>
+<path class="bar" d="M500,242.0 h487.4 a4,4 0 0 1 4,4 v16 a4,4 0 0 1 -4,4 h-487.4 z"><title>ETH-Bibliothek (all media): 546 of 600 sampled without depicts (91%)</title></path>
+<text class="ink" x="1003.4" y="258" font-size="20" font-weight="700">91%</text>
+<text class="mut" x="1003.4" y="278" font-size="14">546 of 600 sampled</text>
+<text class="ink" x="48" y="340" font-size="19" font-weight="600">Zentralbibliothek Zürich</text>
+<text class="mut" x="48" y="364" font-size="14">P195: set  ·  full count</text>
+<path class="bar" d="M500,326.0 h47.3 a4,4 0 0 1 4,4 v16 a4,4 0 0 1 -4,4 h-47.3 z"><title>Zentralbibliothek Zürich: 685 of 7,224 without depicts (9.5%)</title></path>
+<text class="ink" x="563.3" y="342" font-size="20" font-weight="700">9.5%</text>
+<text class="mut" x="563.3" y="362" font-size="14">685 of 7,224</text>
+<text class="ink" x="48" y="424" font-size="19" font-weight="600">Museum Rietberg</text>
+<text class="mut" x="48" y="448" font-size="14">P195: none  ·  full count</text>
+<path class="bar" d="M500,410.0 h42.4 a4,4 0 0 1 4,4 v16 a4,4 0 0 1 -4,4 h-42.4 z"><title>Museum Rietberg: 31 of 359 without depicts (8.6%)</title></path>
+<text class="ink" x="558.4" y="426" font-size="20" font-weight="700">8.6%</text>
+<text class="mut" x="558.4" y="446" font-size="14">31 of 359</text>
+<text class="ink" x="48" y="508" font-size="19" font-weight="600">UZH Ethnographic Museum, Sevruguin</text>
+<text class="mut" x="48" y="532" font-size="14">P195: none  ·  full count</text>
+
+<text class="ink" x="512.0" y="510" font-size="20" font-weight="700">0%</text>
+<text class="mut" x="512.0" y="530" font-size="14">0 of 160</text>
+<text class="mut" x="48" y="656" font-size="13">Counts: wdt:P180 checked per file on the QLever Wikimedia Commons endpoint. ETH: uniform random sample of 600 of 60,449 files (95% CI 88.7–93.3%).</text>
+<text class="mut" x="48" y="676" font-size="13">Collections selected by P195 (ZB) or by Commons category. Only direct P180 statements are counted. P195 column: any value of P195 on the checked files.</text>
+</svg>

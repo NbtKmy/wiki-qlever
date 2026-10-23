@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 760" width="1600" height="760" role="img" aria-labelledby="t d">
+<title id="t">Collections without a P195 collection statement</title>
+<desc id="d">Left: four Swiss collections, every checked file lacks P195. Right: who uses P195 on Commons, 8.2 million files in total, mostly US institutions; in Switzerland swisstopo and Zentralbibliothek Zürich.</desc>
+<style>
+svg{--surface:#fcfcfb;--ink:#0b0b0b;--ink2:#52514e;--muted:#6f6e69;--grid:#e3e2de;--bar:#2a78d6;--accent:#eb6834}
+@media (prefers-color-scheme: dark){svg{--surface:#1a1a19;--ink:#f0efec;--ink2:#c3c2b7;--muted:#a3a29a;--grid:#3a3a37;--bar:#3987e5;--accent:#d95926}}
+text{font-family:-apple-system,"Helvetica Neue",Arial,sans-serif}
+.bg{fill:var(--surface)}.ink{fill:var(--ink)}.ink2{fill:var(--ink2)}.mut{fill:var(--muted)}
+.grid{stroke:var(--grid);stroke-width:1}.bar{fill:var(--bar)}.acc{fill:var(--accent)}
+</style>
+<rect class="bg" width="1600" height="760"/>
+<text class="ink" x="48" y="64" font-size="32" font-weight="700">Four Swiss collections we checked have no collection (P195) statement</text>
+<text class="ink2" x="48" y="100" font-size="18">QLever, Wikimedia Commons endpoint, 23 Oct 2026. P195 is what lets one query select a whole institution.</text>
+<text class="ink" x="48" y="168" font-size="20" font-weight="700">Share of checked files without P195 (any value)</text>
+<line class="grid" x1="460.0" y1="184" x2="460.0" y2="564"/>
+<text class="mut" x="460.0" y="588" font-size="15" text-anchor="middle">0%</text>
+<line class="grid" x1="630.0" y1="184" x2="630.0" y2="564"/>
+<text class="mut" x="630.0" y="588" font-size="15" text-anchor="middle">50%</text>
+<line class="grid" x1="800.0" y1="184" x2="800.0" y2="564"/>
+<text class="mut" x="800.0" y="588" font-size="15" text-anchor="middle">100%</text>
+<text class="ink" x="48" y="222" font-size="19" font-weight="600">Aargau society collection (#319)</text>
+<text class="mut" x="48" y="246" font-size="14">2,751 files checked  ·  full count</text>
+<path class="acc" d="M460,208.0 h336.0 a4,4 0 0 1 4,4 v16 a4,4 0 0 1 -4,4 h-336.0 z"><title>Aargau society collection (#319): 0 of 2,751 files have no P195 (100%)</title></path>
+<text class="ink" x="812.0" y="224" font-size="20" font-weight="700">100%</text>
+<text class="mut" x="812.0" y="244" font-size="14">0 of 2,751 with P195</text>
+<text class="ink" x="48" y="318" font-size="19" font-weight="600">ETH-Bibliothek (all media)</text>
+<text class="mut" x="48" y="342" font-size="14">600 files checked  ·  random sample of 60,449</text>
+<path class="acc" d="M460,304.0 h336.0 a4,4 0 0 1 4,4 v16 a4,4 0 0 1 -4,4 h-336.0 z"><title>ETH-Bibliothek (all media): 0 of 600 files have no P195 (100%)</title></path>
+<text class="ink" x="812.0" y="320" font-size="20" font-weight="700">100%</text>
+<text class="mut" x="812.0" y="340" font-size="14">0 of 600 with P195</text>
+<text class="ink" x="48" y="414" font-size="19" font-weight="600">Museum Rietberg</text>
+<text class="mut" x="48" y="438" font-size="14">359 files checked  ·  full count</text>
+<path class="acc" d="M460,400.0 h336.0 a4,4 0 0 1 4,4 v16 a4,4 0 0 1 -4,4 h-336.0 z"><title>Museum Rietberg: 0 of 359 files have no P195 (100%)</title></path>
+<text class="ink" x="812.0" y="416" font-size="20" font-weight="700">100%</text>
+<text class="mut" x="812.0" y="436" font-size="14">0 of 359 with P195</text>
+<text class="ink" x="48" y="510" font-size="19" font-weight="600">UZH Ethnographic Museum, Sevruguin</text>
+<text class="mut" x="48" y="534" font-size="14">160 files checked  ·  full count</text>
+<path class="acc" d="M460,496.0 h336.0 a4,4 0 0 1 4,4 v16 a4,4 0 0 1 -4,4 h-336.0 z"><title>UZH Ethnographic Museum, Sevruguin: 0 of 160 files have no P195 (100%)</title></path>
+<text class="ink" x="812.0" y="512" font-size="20" font-weight="700">100%</text>
+<text class="mut" x="812.0" y="532" font-size="14">0 of 160 with P195</text>
+<line class="grid" x1="980" y1="150" x2="980" y2="670"/>
+<text class="ink" x="1010" y="168" font-size="20" font-weight="700">Who uses P195 on Commons?</text>
+<text class="ink2" x="1010" y="196" font-size="15">8.2 million files carry it, mostly US institutions</text>
+<text class="mut" x="1010" y="240" font-size="14" font-weight="600" letter-spacing="0.4">EXAMPLES ABROAD (FILES WITH P195)</text>
+<text class="ink" x="1010" y="270" font-size="18">National Archives (US)</text>
+<text class="ink" x="1530" y="270" font-size="18" font-weight="700" text-anchor="end">2,077,091</text>
+<text class="ink" x="1010" y="302" font-size="18">National Diet Library (JP)</text>
+<text class="ink" x="1530" y="302" font-size="18" font-weight="700" text-anchor="end">866,169</text>
+<text class="ink" x="1010" y="334" font-size="18">Metropolitan Museum of Art</text>
+<text class="ink" x="1530" y="334" font-size="18" font-weight="700" text-anchor="end">386,703</text>
+<text class="ink" x="1010" y="366" font-size="18">Rijksmuseum</text>
+<text class="ink" x="1530" y="366" font-size="18" font-weight="700" text-anchor="end">40,382</text>
+<text class="ink" x="1010" y="398" font-size="18">KB, nationale bibliotheek</text>
+<text class="ink" x="1530" y="398" font-size="18" font-weight="700" text-anchor="end">34,908</text>
+<text class="mut" x="1010" y="452" font-size="14" font-weight="600" letter-spacing="0.4">SWITZERLAND (FILES WITH P195)</text>
+<text class="ink" x="1010" y="482" font-size="18">Federal Office of Topography</text>
+<text class="ink" x="1530" y="482" font-size="18" font-weight="700" text-anchor="end">70,194</text>
+<text class="ink" x="1010" y="514" font-size="18">Zentralbibliothek Zürich</text>
+<text class="ink" x="1530" y="514" font-size="18" font-weight="700" text-anchor="end">7,224</text>
+<text class="mut" x="1010" y="568" font-size="14">ETH, Rietberg, UZH and the Aargau society: none in our checks.</text>
+<text class="mut" x="48" y="716" font-size="13">Left: wdt:P195 with any value, checked per file. Right: number of Commons files per P195 value; one query over the whole endpoint (top 40 values only), so smaller users are not shown.</text>
+<text class="mut" x="48" y="736" font-size="13">Zentralbibliothek Zürich was selected via P195 = Q190260 and is therefore not part of the left panel.</text>
+</svg>
