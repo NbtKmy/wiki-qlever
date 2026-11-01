@@ -155,7 +155,7 @@ Observations:
 - Only the direct property `P180` was counted. A file may describe its content through other statements instead.
 - 174 of the 546 are not aerial photographs (the aerial series `LBS` / `Inlandflüge` / `Nordafrikaflug` make up the rest). The non-aerial files are mostly glass slides (`Dia 247`, a Leo Wehrli collection), portraits (`Portr`), building photos (`Ans`) and photos of people and events (`Com`).
 - Pitfall: starting the category listing at random sort keys (`cmstarthexsortkey`) gave a heavily clustered sample (65 distinct files from 25 starts), because file names do not spread evenly over hex keys. Enumerate the whole category first, then sample.
-- Existing viewpoint statements are rare: in the same 600 files, `P1259` appears on 3 files and `P625` on none. `P7787` and `P4036` were not measured.
+- Existing viewpoint statements are rare: in the same 600 files, `P1259` appears on 3 files and `P625` on none. `P9149`, `P7787` and `P4036` were not measured.
 
 ## Candidate matching experiments
 
@@ -203,14 +203,35 @@ Takeaways:
 
 Photographs can also carry statements about how they were taken. Properties checked on Wikidata (23 Oct 2026):
 
-| Property | Meaning |
-|---|---|
-| `P1259` | coordinates of the point of view |
-| `P7108` | location of the point of view (an item) |
-| `P7787` | heading: direction (yaw) of the camera |
-| `P4036` | field of view |
+| Property | Meaning | On Commons files |
+|---|---|---|
+| `P1259` | coordinates of the point of view (camera) | yes, "Done" in the location model |
+| `P9149` | coordinates of the depicted place | yes, "Done"; replaces `P625` on files |
+| `P7787` | heading: direction (yaw) of the camera; Wikidata datatype quantity, unit degree or radian, range 0–360, clockwise from north | as a qualifier of `P1259` / `P9149`, not a statement of its own |
+| `P2044` | elevation above sea level | optional qualifier of `P1259` / `P9149` |
+| `P7108` | location of the point of view (an item) | not mentioned on the Commons modeling pages; not checked |
+| `P4036` | field of view | not part of the Commons location model |
 
 `P2061` is *aspect ratio (W:H)*, not a view direction.
+
+Sources (checked 1 Nov 2026): [Commons:Structured data/Modeling/Location](https://commons.wikimedia.org/wiki/Commons:Structured_data/Modeling/Location), [Commons:Structured data/Modeling](https://commons.wikimedia.org/wiki/Commons:Structured_data/Modeling), [Wikidata P7787](https://www.wikidata.org/wiki/Property:P7787).
+
+### Writing to Commons
+
+- Existing users of the properties: AliciaFagervingWMSE-bot adds `P1259` for Wiki Loves Monuments files; XRayBot adds `P9149` to its operator's own photographs.
+- Ways to add statements: the "Structured data" tab of a file, QuickStatements in Commons mode (batch only, `M` IDs instead of `Q` IDs), OpenRefine 3.6 or later, Cat2Data, Depictor and others (list on [Commons:Structured data](https://commons.wikimedia.org/wiki/Commons:Structured_data)).
+- QuickStatements cannot set the precision or the globe of a coordinate, cannot set ranks, and does not honour `maxlag`. This matters for approximate camera positions, because a precision that is too fine claims accuracy we do not have. Options: set the precision through the API or OpenRefine, or have the reviewer check it after the import.
+- The QuickStatements help only shows a coordinate example for `P625` (`@LAT/LON`). Whether `P1259` with a `P7787` qualifier is accepted on Commons has to be tested on one file first.
+- We did not find a Commons page that lists allowed or forbidden properties, nor one that states bot approval rules. Check [Commons:Bots](https://commons.wikimedia.org/wiki/Commons:Bots) before any mass edit.
+
+### Hand-picked coordinates
+
+A reviewer who reads a position off a map (OpenStreetMap, swisstopo, Google Maps) gets a plausible position, not an exact one:
+
+- Historic photographs: the exact standpoint is usually unknown, the place may have changed or disappeared, and the caption often names a building or a hotel, not a spot.
+- Map clicks have an error of several metres; zoom and the reviewer's judgement set the real accuracy.
+- Use a coordinate precision that matches this (for example about 0.0001° for a named building, 0.01° for a village) and record how the value was obtained (for example "read from map by reviewer, approximate").
+- Licence of the map source: coordinates are facts, but we have not checked what the Commons community expects for Google Maps. Prefer OpenStreetMap or swisstopo, and verify before the first import.
 
 ETH file names often contain this information in words: `gegen Süd`, `vom Vulcan-Hôtel`, `von N.`, `v. N. aus 1900 m` (aerial: direction and altitude). Caution with `von N.` ("seen from the north"): the camera then looks south, so `P7787` would be about 180°, not 0°. Define the convention before extracting. The place name before the first comma is sometimes the viewpoint and not the subject (see Jungfraujoch / Mönch above).
 
@@ -222,7 +243,8 @@ ETH file names often contain this information in words: `gegen Süd`, `vom Vulca
 ## Open questions
 
 - Which Swiss GLAM collections can be reliably selected with SPARQL on QLever (`P195`, file-name patterns), and which need the Commons API for category membership?
-- Is the ETH figure (about 91% without `depicts`) typical for other bulk-uploaded archives, and how much of it is covered by other statements (for example `P180` on a parent work, `P921`, or depicted-place `P625`)?
+- Is the ETH figure (about 91% without `depicts`) typical for other bulk-uploaded archives, and how much of it is covered by other statements (for example `P180` on a parent work, `P921`, or depicted-place `P9149`)?
 - How well does a type-constrained lookup (with `@mul` labels, spelling variants and substring matching) do on the same 30 + 20 files? Only the plain lookup was measured.
-- Can heading (`P7787`) and viewpoint (`P1259`) be extracted from the file names reliably, and how often are they already present on Commons?
+- Can heading (`P7787`, a qualifier) and camera position (`P1259`) be extracted from the file names reliably, and how often are `P1259`, `P9149` and `P7787` already present on Commons?
+- Does Commons accept a `P1259` statement with a `P7787` qualifier written through QuickStatements, and with which coordinate precision?
 - How up to date is the index relative to live Commons?

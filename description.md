@@ -13,12 +13,13 @@ Many of these images still lack structured information about what they depict, w
 **collection → QLever gap detection → suggested statements → human validation → Structured Data on Commons**
 
 1. **Select a collection.** Preferably by institution, using the *collection* statement (`P195`). Where that is missing, by Commons category or file-name prefix.
-2. **Detect gaps with QLever.** Count and list files without `depicts`, viewpoint, or heading.
+2. **Detect gaps with QLever.** Count and list files without `depicts`, camera or depicted-place coordinates, or heading.
 3. **Suggest statements.** From the file name, the caption, and the image itself:
    - `depicts` (`P180`): landmarks, places, people, and objects, matched to Wikidata. This is the main part.
-   - Camera position: `P7108` (location of the point of view) from phrases such as *vom Vulcan-Hôtel*, and `P1259` (coordinates) taken from that item as an approximation, not a precise value.
-   - Camera direction: `P7787` (heading) from phrases such as *gegen Süd* or *von N.* (careful: "seen from the north" means the camera points south).
-   - Field of view (`P4036`) is part of the data model, but we do not expect to derive it for historic photographs.
+   - Camera position: `P1259` (coordinates of the point of view), from phrases such as *vom Vulcan-Hôtel*. The coordinates come from the named place and are an approximation, not a precise value. `P7108` (location of the point of view, an item) may be added as well; we have not yet checked whether it is used on Commons.
+   - Depicted place: `P9149` (coordinates of the depicted place) for the subject of the photo. `P625` is not used on files; Commons replaces it with `P9149`.
+   - Camera direction: `P7787` (heading) as a qualifier of `P1259` or `P9149`, from phrases such as *gegen Süd* or *von N.* (careful: "seen from the north" means the camera points south).
+   - Field of view (`P4036`) is not part of the Commons location model, and we do not expect to derive it for historic photographs.
 4. **Validate by a human.** A reviewer accepts, rejects, or picks another candidate. Every suggestion records where it came from, for example "inferred from file name".
 5. **Export** the accepted statements for Commons (for example as QuickStatements), instead of writing directly.
 
