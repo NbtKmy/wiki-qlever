@@ -1,56 +1,65 @@
-## Wiki QLever — A Reusable Pipeline for Finding and Filling the Gaps in Wikimedia Commons
+## Wiki QLever — Find the Gaps in Wikimedia Commons, and Close Them
 
-Swiss GLAM institutions such as ETH Library, Zentralbibliothek Zürich, and many others have made large image collections available through Wikimedia Commons.
+**The challenge:** Pick a large collection on Wikimedia Commons. Can we find out, with one query, which images are still missing structured data about what they show and where they were taken, suggest the missing statements, and let a human confirm them? And can we build it so that it works for the next collection too?
 
-But making an image available is only the first step.
+**Baseline**
 
-Many of these images still lack structured information about what they depict, where they were taken, and which institution they belong to. Without it, valuable cultural heritage remains hard to discover, map, and reuse.
+Swiss GLAM institutions such as ETH Library and Zentralbibliothek Zürich have put large image collections on Wikimedia Commons. QLever offers a SPARQL endpoint for Commons, so we can ask questions about the structured data of millions of files and get answers quickly. We use it to measure what is missing and to prepare the statements that fill the gap. We build a **generic pipeline**, not a tool for one collection, and test it on real ones.
 
-**Wiki QLever** uses QLever's SPARQL endpoint for Wikimedia Commons to measure these gaps and to help close them. We do not build a tool for one collection. We build a **generic pipeline** that works for any collection, and we test it on real ones.
+**Pains**
 
-**The pipeline**
-
-**collection → QLever gap detection → suggested statements → human validation → Structured Data on Commons**
-
-1. **Select a collection.** Preferably by institution, using the *collection* statement (`P195`). Where that is missing, by Commons category or file-name prefix.
-2. **Detect gaps with QLever.** Count and list files without `depicts`, camera or depicted-place coordinates, or heading.
-3. **Suggest statements.** From the file name, the caption, and the image itself:
-   - `depicts` (`P180`): landmarks, places, people, and objects, matched to Wikidata. This is the main part.
-   - Camera position: `P1259` (coordinates of the point of view), from phrases such as *vom Vulcan-Hôtel*. The coordinates come from the named place and are an approximation, not a precise value. `P7108` (location of the point of view, an item) may be added as well; we have not yet checked whether it is used on Commons.
-   - Depicted place: `P9149` (coordinates of the depicted place) for the subject of the photo. `P625` is not used on files; Commons replaces it with `P9149`.
-   - Camera direction: `P7787` (heading) as a qualifier of `P1259` or `P9149`, from phrases such as *gegen Süd* or *von N.* (careful: "seen from the north" means the camera points south). Commons stores the heading as a single value without an uncertainty, so we keep a coarse value and mark the coordinate as approximate (`P1480` = circa).
-   - Field of view (`P4036`) is not part of the Commons location model, and we do not expect to derive it for historic photographs.
-4. **Validate by a human.** A reviewer accepts, rejects, or picks another candidate. Every suggestion records where it came from, for example "inferred from file name".
-5. **Export** the accepted statements for Commons (for example as QuickStatements), instead of writing directly.
-
-**Why institutions should register the collection (`P195`)**
-
-With `P195`, one query selects a whole collection, for example all 7,224 files of Zentralbibliothek Zürich. Without it, selection needs workarounds such as walking Commons categories.
-
-`P195` is widely used on Commons: about 8.2 million files carry it, mostly from US institutions (National Archives, Metropolitan Museum, public libraries), but also the Rijksmuseum, the National Diet Library of Japan, and in Switzerland the Federal Office of Topography and Zentralbibliothek Zürich. In four other Swiss collections we checked in October 2026, none of the files has it:
+- Many images have no structured description of their content. In a random sample of 600 files from the ETH Library collection (60,449 files), about 91% have no `depicts` statement (`P180`). In the Aargau society collection (challenge #319), 10 of 2,751 indexed files have one.
+- Camera position and viewing direction are almost absent. In the same ETH sample, 3 of 600 files have camera coordinates (`P1259`).
+- Collections are hard to select. The *collection* statement (`P195`) lets one query pick all files of an institution, but none of the four Swiss collections we checked uses it, although about 8.2 million Commons files do, mostly from US institutions.
 
 ![Four Swiss collections we checked have no collection (P195) statement](presentations/assets/p195-gap-by-collection.png)
 
-- ETH Library: no `P195` in a random sample of 600 out of 60,449 files; about 91% of the sample also has no `depicts`.
-- Aargau society collection (challenge #319): no `P195` on any of its 2,751 indexed files, and `depicts` on only 10 of them.
-- Museum Rietberg and the UZH Ethnographic Museum (Sevruguin photos): no `P195`.
+- Suggestions from file names alone are not safe. In a small hand-checked test of 30 files, half had no Wikidata candidate at all, and of the other half the top candidate was wrong or uncertain in 4 of 15 cases. A human has to decide.
 
-These are four collections we picked, not a survey of all Swiss institutions. We want to encourage institutions to add the collection statement, and to show what is missing.
+These are collections we picked, not a survey of all Swiss institutions.
 
-**What do we get when the data is there?** We will show a few examples on real data, for instance:
+**Goals**
 
-- a map of a collection from camera positions,
+Build the pipeline end to end for one or two collections:
+
+**collection → QLever gap detection → suggested statements → human validation → Structured Data on Commons**
+
+1. **Select a collection.** Preferably with `P195`, otherwise by Commons category or file-name prefix.
+2. **Detect gaps with QLever.** Count and list the files without `depicts`, without coordinates, or without heading.
+3. **Suggest statements** from the file name, the caption, and the image itself:
+   - `depicts` (`P180`): landmarks, places, people, and objects, matched to Wikidata. This is the main part.
+   - Camera position `P1259` and depicted place `P9149`, both as approximate coordinates, with the heading `P7787` as a qualifier. Phrases such as *vom Vulcan-Hôtel* or *gegen Süd* give hints. Careful: "seen from the north" means the camera points south.
+4. **Validate by a human.** A reviewer accepts, rejects, or picks another candidate. Every suggestion records its source, for example "inferred from file name".
+5. **Export** the accepted statements for Commons (for example as QuickStatements) instead of writing directly.
+
+Then show what the data makes possible, for example:
+
+- a map of a collection from the camera positions,
 - the viewing direction of historic aerial photographs drawn on a map,
 - a comparison of institutions by how complete their metadata is,
-- finding all photos of the same mountain or object across institutions,
-- spotting file names that do not match the content.
+- all photos of the same mountain or object across institutions,
+- file names that do not match the content.
 
-Our approach complements the challenge about place names and coordinates for the Aargau society collection (#319): the pipeline can serve that collection as one of its test cases.
+Secondary goal: show institutions what is missing, and encourage them to register the collection statement (`P195`).
 
-For the hackathon we will build the pipeline end to end for one or two collections, with a simple review interface. Possible extensions are AI-assisted object recognition, image-region annotations, and direct upload to Commons.
+**Already done**
 
-The larger question behind the project is simple:
+- Gap measurements with QLever for ETH Library, Zentralbibliothek Zürich, the Aargau society collection, Museum Rietberg and the UZH Ethnographic Museum (documented in `docs/qlever-commons.md`).
+- A hand-checked test of matching file names and image content to Wikidata items, with its failure cases.
+- A manual write test on one Commons file: approximate camera position, heading, and depicted place were saved as structured data. A heading cannot carry an uncertainty on Commons, so the pipeline has to keep it.
 
-**How can we turn millions of openly available cultural heritage images into a more connected, searchable, and reusable knowledge graph?**
+**Dataset**
 
-We are looking for people interested in Wikimedia Commons, Wikidata, SPARQL/QLever, cultural heritage collections, user interfaces, or computer vision.
+Any Commons collection. We start with the ETH-Bibliothek files (`Category:Media contributed by the ETH-Bibliothek`) and Zentralbibliothek Zürich, which are large, bulk-uploaded and mostly unannotated. The Aargau society collection (#319) is a possible second test case: our pipeline complements that challenge, which is about place names and coordinates for the same collection.
+
+**Possible extensions**
+
+AI-assisted object recognition, image-region annotations, and direct upload to Commons.
+
+**The question behind the project**
+
+How can we turn millions of openly available cultural heritage images into a more connected, searchable, and reusable knowledge graph?
+
+**Who we are looking for**
+
+People interested in Wikimedia Commons, Wikidata, SPARQL/QLever, cultural heritage collections, user interfaces, or computer vision.
