@@ -18,7 +18,7 @@ Many of these images still lack structured information about what they depict, w
    - `depicts` (`P180`): landmarks, places, people, and objects, matched to Wikidata. This is the main part.
    - Camera position: `P1259` (coordinates of the point of view), from phrases such as *vom Vulcan-Hôtel*. The coordinates come from the named place and are an approximation, not a precise value. `P7108` (location of the point of view, an item) may be added as well; we have not yet checked whether it is used on Commons.
    - Depicted place: `P9149` (coordinates of the depicted place) for the subject of the photo. `P625` is not used on files; Commons replaces it with `P9149`.
-   - Camera direction: `P7787` (heading) as a qualifier of `P1259` or `P9149`, from phrases such as *gegen Süd* or *von N.* (careful: "seen from the north" means the camera points south).
+   - Camera direction: `P7787` (heading) as a qualifier of `P1259` or `P9149`, from phrases such as *gegen Süd* or *von N.* (careful: "seen from the north" means the camera points south). Commons stores the heading as a single value without an uncertainty, so we keep a coarse value and mark the coordinate as approximate (`P1480` = circa).
    - Field of view (`P4036`) is not part of the Commons location model, and we do not expect to derive it for historic photographs.
 4. **Validate by a human.** A reviewer accepts, rejects, or picks another candidate. Every suggestion records where it came from, for example "inferred from file name".
 5. **Export** the accepted statements for Commons (for example as QuickStatements), instead of writing directly.
