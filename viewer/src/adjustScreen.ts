@@ -73,6 +73,7 @@ export async function mountAdjust(
       infoBox: false,
       selectionIndicator: false,
     })
+    createdViewer = viewer
     viewer.scene.primitives.add(await Cesium.Cesium3DTileset.fromUrl(SWISSTOPO_BUILDINGS_URL))
 
     const sampleGround = async (position: LonLat): Promise<number | null> => {
@@ -96,6 +97,7 @@ export async function mountAdjust(
       fovDeg: 60,
     }
     const store = createPoseStore(initial)
+    isDirty = store.isDirty
     const warnOnUnload = (e: BeforeUnloadEvent) => {
       if (store.isDirty()) e.preventDefault()
     }
