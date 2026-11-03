@@ -1,5 +1,11 @@
 # Wiki QLever — Turn Wikimedia Commons Photos into Data You Can Play With
 
+**The challenge:** Let's add more structured data to the Wikimedia Commons files of Swiss GLAM institutions!
+
+QLever now offers a SPARQL endpoint for Commons, so the structured data of millions of files can be queried quickly. With one query we can see what a collection is still missing: what its images show, and where they were taken. Then we suggest the missing statements, let a human confirm them, and build something fun on top of the data. And if it works for one collection, it should work for the next one too.
+
+## What becomes possible
+
 **Try it first:** the [camera position viewer](https://nbtkmy.github.io/wiki-qlever/). It is a static web page. It asks Wikimedia Commons, through QLever, which photos have a depicted place but no camera position, and lets you line a photo up with Swiss 3D buildings. No server, no login.
 
 ![The 1889 photograph of the Escher monument in Zürich, faded over swisstopo 3D buildings in CesiumJS](https://raw.githubusercontent.com/NbtKmy/wiki-qlever/main/presentations/assets/viewer-escherdenkmal.png)
@@ -7,10 +13,6 @@
 *An 1889 photograph of the Alfred Escher monument at Zürich Hauptbahnhof (Robert Breitinger, public domain, [Zentralbibliothek Zürich on Commons](https://commons.wikimedia.org/wiki/File:Zentralbibliothek_Z%C3%BCrich_-_Escherdenkmal_-_991028231679705501.jpg)), faded over swisstopo 3D buildings in CesiumJS. The camera sits at about the position stored in this file's structured data.*
 
 That page only works because Commons stores *structured data* about its files, and anyone can query it with SPARQL. A file is not only a picture with a caption: it can say what it shows, where it was taken, from which direction, and which institution holds it. Once such statements exist, a few lines of static code are enough to put photos on a 3D map. The infrastructure is open, shared and free for everyone.
-
-**The challenge:** Pick a large collection on Wikimedia Commons. Can we find out, with one query, which images are still missing this data, suggest the missing statements, and let a human confirm them? And can we build it so that it works for the next collection too?
-
-## What becomes possible
 
 Every statement we add unlocks something. Some ideas, from ready to ambitious:
 
