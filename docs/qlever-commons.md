@@ -228,7 +228,7 @@ Sources (checked 1 Nov 2026): [Commons:Structured data/Modeling/Location](https:
 
 ### Manual test on one file (1 Nov 2026)
 
-File: `Zentralbibliothek Zürich - Escherdenkmal - 991028231679705501.jpg` (`M155155057`), a 1889 photograph of the Alfred Escher fountain at Zürich Hauptbahnhof. Before the test it had no `P1259`, `P9149`, `P625` or `P7787`. We added the statements by hand in the "Structured data" tab and read them back with `wbgetentities` (final revision 1294652756):
+File: `Zentralbibliothek Zürich - Escherdenkmal - 991028231679705501.jpg` (`M155155057`, [link](https://commons.wikimedia.org/wiki/File:Zentralbibliothek_Z%C3%BCrich_-_Escherdenkmal_-_991028231679705501.jpg)), a 1889 photograph of the Alfred Escher fountain at Zürich Hauptbahnhof. Before the test it had no `P1259`, `P9149`, `P625` or `P7787`. We added the statements by hand in the "Structured data" tab and read them back with `wbgetentities` (final revision 1294652756):
 
 - `P1259` = 47.3769854, 8.5399621 (reviewer's estimate of the photographer's position), precision 0.0001° (about 11 m).
   - Qualifier `P7787` = 0 degree (unit Q28390). The photo shows the fountain in the middle of the frame and the station facade almost head-on, and the fountain lies about 1° (north) from the position.
