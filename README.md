@@ -70,3 +70,4 @@ This repository contains the documents and code for the project "wiki-qlever" at
 
 - [`docs/qlever-commons.md`](docs/qlever-commons.md): guide to the QLever endpoint for Commons, with all measurements and test results mentioned above.
 - [`presentations/assets/`](presentations/assets/): charts used in this description (SVG and PNG).
+- [`viewer/`](viewer/): a 3D viewer for correcting camera positions of Commons photos (see its README).
