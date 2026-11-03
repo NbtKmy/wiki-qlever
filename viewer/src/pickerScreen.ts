@@ -42,6 +42,7 @@ export function mountPicker(root: HTMLElement, onPick: (photo: PickedPhoto) => v
   let controller = new AbortController()
   let infos = new Map<number, FileInfo>()
   let failedBatches: Candidate[][] = []
+  let infoLoading = false
   let loadedCandidates: Candidate[] = []
   const rowFor = new Map<number, HTMLLIElement>()
 
@@ -89,6 +90,7 @@ export function mountPicker(root: HTMLElement, onPick: (photo: PickedPhoto) => v
     infos = new Map()
     failedBatches = []
     loadedCandidates = []
+    infoLoading = false
     retry.hidden = true
     status.textContent = listStatus('loading')
     map.fitBounds([
@@ -123,22 +125,32 @@ export function mountPicker(root: HTMLElement, onPick: (photo: PickedPhoto) => v
 
   // Loads titles and thumbnails batch by batch. Batches that fail stay in `failedBatches` for Retry.
   async function loadInfo(signal: AbortSignal, candidates: Candidate[]) {
+    if (infoLoading) return // a second Retry click must not start a parallel run
+    infoLoading = true
+    retry.hidden = true
     const stillFailed: Candidate[][] = []
     for (const batch of failedBatches) {
       try {
         const batchInfo = await fetchFileInfo(batch.map((c) => c.pageId))
-        if (signal.aborted) return
+        if (signal.aborted) {
+          infoLoading = false
+          return
+        }
         for (const c of batch) {
           const info = batchInfo.get(c.pageId)
           if (info) infos.set(c.pageId, info)
           fillRow(c, info)
         }
       } catch {
-        if (signal.aborted) return
+        if (signal.aborted) {
+          infoLoading = false
+          return
+        }
         stillFailed.push(batch)
         for (const c of batch) fillRow(c, undefined)
       }
     }
+    infoLoading = false
     failedBatches = stillFailed
     const failedCount = stillFailed.reduce((n, batch) => n + batch.length, 0)
     status.textContent = failedCount > 0 ? infoErrorStatus(failedCount) : listStatus(candidates)
