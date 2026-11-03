@@ -90,6 +90,8 @@ At the time of testing this collection had 7,224 files tagged with `P195 = Q1902
   - Museum Rietberg (Q668300): 721 files via `P170` (creator), all with `depicts` already; `P195` gives 0.
   - Swiss National Museum (Q691896): used as a `depicts` value (172 files), not as a collection.
   - `P7482 = Q87402110` ("own work by the original uploader") is a generic value shared by 1,946 files across uploaders, so it does not identify an institution.
+
+  ![Four Swiss collections we checked have no collection (P195) statement](../presentations/assets/p195-gap-by-collection.png)
 - **Selecting files by file name works, with a catch.** QLever has no Commons categories in this index, but `schema:url` contains the file name. For ETH Image Archive, files named `ETH Bildarchiv …` / `ETH-Bibliothek Zürich, Bildarchiv - …` can be selected like this (about 20 s with `LIMIT`):
 
   ```sparql
