@@ -1,4 +1,5 @@
-import { metersBetween, offsetByMeters } from './geo'
+import { commonsPageUrl } from './commons'
+import { formatResult, metersBetween, offsetByMeters } from './geo'
 import type { CameraPose, PoseStore } from './poseStore'
 
 type Slider = { row: HTMLElement; update(value: number): void }
@@ -31,7 +32,12 @@ function slider(
 }
 
 /** Right-hand panel with sliders for fine tuning. Mounted into the element that holds the 3D view. */
-export function mountPanel(root: HTMLElement, store: PoseStore, photoImg: HTMLImageElement): void {
+export function mountPanel(
+  root: HTMLElement,
+  store: PoseStore,
+  photoImg: HTMLImageElement,
+  photoTitle: string,
+): void {
   const start: CameraPose = store.get()
   const aside = document.createElement('aside')
   aside.className = 'adjust-panel'
@@ -69,6 +75,22 @@ export function mountPanel(root: HTMLElement, store: PoseStore, photoImg: HTMLIm
     h.textContent = text
     return h
   }
+  const result = document.createElement('pre')
+  result.className = 'panel-result'
+  const copy = document.createElement('button')
+  copy.textContent = 'Copy values'
+  copy.onclick = async () => {
+    const { position, headingDeg } = store.get()
+    await navigator.clipboard.writeText(formatResult(position, headingDeg).text)
+    copy.textContent = 'Copied'
+    setTimeout(() => (copy.textContent = 'Copy values'), 1500)
+  }
+  const commonsLink = document.createElement('a')
+  commonsLink.href = commonsPageUrl(photoTitle)
+  commonsLink.target = '_blank'
+  commonsLink.rel = 'noopener'
+  commonsLink.textContent = 'Open on Commons'
+
   body.append(
     heading3('Photo'),
     opacity.row,
@@ -78,6 +100,11 @@ export function mountPanel(root: HTMLElement, store: PoseStore, photoImg: HTMLIm
     height.row,
     heading.row,
     fov.row,
+    heading3('Result'),
+    result,
+    copy,
+    document.createTextNode(' '),
+    commonsLink,
   )
   aside.append(toggle, body)
   root.append(aside)
@@ -89,6 +116,7 @@ export function mountPanel(root: HTMLElement, store: PoseStore, photoImg: HTMLIm
     height.update(pose.heightAboveGroundM)
     heading.update(pose.headingDeg)
     fov.update(pose.fovDeg)
+    result.textContent = formatResult(pose.position, pose.headingDeg).text
   }
   opacity.update(Number(photoImg.style.opacity) * 100)
   sync(store.get())

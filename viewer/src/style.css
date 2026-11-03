@@ -172,3 +172,11 @@ body,
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
+
+.panel-result {
+  margin: 0 0 8px;
+  padding: 6px 8px;
+  background: #f4f4f4;
+  font-size: 12px;
+  white-space: pre-wrap;
+}

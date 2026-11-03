@@ -44,7 +44,10 @@ export async function mountAdjust(
   toolbar.className = 'toolbar'
   const back = document.createElement('button')
   back.textContent = '← Back to list'
-  back.onclick = onBack
+  back.onclick = () => {
+    if (store.isDirty() && !window.confirm('Discard your adjustments?')) return
+    onBack()
+  }
   toolbar.append(back)
   view.append(cesiumEl, photoImg, toolbar)
   const adjust = document.createElement('div')
@@ -89,6 +92,10 @@ export async function mountAdjust(
     fovDeg: 60,
   }
   const store = createPoseStore(initial)
+  const warnOnUnload = (e: BeforeUnloadEvent) => {
+    if (store.isDirty()) e.preventDefault()
+  }
+  window.addEventListener('beforeunload', warnOnUnload)
 
   let detachControls = () => {}
   if (hasCoverage) {
@@ -114,7 +121,7 @@ export async function mountAdjust(
     }
     store.subscribe(applyPose)
     applyPose(store.get())
-    mountPanel(adjust, store, photoImg)
+    mountPanel(adjust, store, photoImg, photo.title)
     detachControls = attachCameraControls({ viewer, store, ground, sampleGround })
   } else {
     const banner = document.createElement('div')
@@ -125,6 +132,7 @@ export async function mountAdjust(
 
   return {
     dispose() {
+      window.removeEventListener('beforeunload', warnOnUnload)
       detachControls()
       viewer.destroy()
       root.replaceChildren()
