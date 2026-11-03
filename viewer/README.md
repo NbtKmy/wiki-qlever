@@ -14,7 +14,7 @@ npm run dev        # http://localhost:5173
 npm test           # unit tests
 ```
 
-The Cesium ion token is only used for the satellite imagery. Create it at <https://ion.cesium.com>, and allow `http://localhost:5173` and the GitHub Pages domain as URLs. `.env.local` is git-ignored.
+The Cesium ion token is only used for the satellite imagery. It ends up in the published JavaScript, so treat it as public: give it the `assets:read` scope only and restrict its allowed URLs. Create it at <https://ion.cesium.com>, and allow `http://localhost:5173` and the GitHub Pages domain as URLs. `.env.local` is git-ignored.
 
 ## Controls
 
