@@ -3,7 +3,7 @@ import 'leaflet/dist/leaflet.css'
 import { fetchCandidates, type Candidate } from './candidates'
 import { fetchFileInfo, type FileInfo } from './commons'
 import { REGIONS } from './config'
-import { listStatus } from './listStatus'
+import { infoErrorStatus, listStatus } from './listStatus'
 
 export type PickedPhoto = Candidate & { title: string }
 
@@ -41,6 +41,8 @@ export function mountPicker(root: HTMLElement, onPick: (photo: PickedPhoto) => v
 
   let controller = new AbortController()
   let infos = new Map<number, FileInfo>()
+  let failedBatches: Candidate[][] = []
+  let loadedCandidates: Candidate[] = []
   const rowFor = new Map<number, HTMLLIElement>()
 
   const pick = (candidate: Candidate) => {
@@ -67,6 +69,7 @@ export function mountPicker(root: HTMLElement, onPick: (photo: PickedPhoto) => v
       return
     }
     title.textContent = info.title
+    row.classList.remove('disabled')
     if (info.thumbUrl) {
       const img = el('img')
       img.src = info.thumbUrl
@@ -84,6 +87,8 @@ export function mountPicker(root: HTMLElement, onPick: (photo: PickedPhoto) => v
     rowFor.clear()
     dots.clearLayers()
     infos = new Map()
+    failedBatches = []
+    loadedCandidates = []
     retry.hidden = true
     status.textContent = listStatus('loading')
     map.fitBounds([
@@ -100,6 +105,7 @@ export function mountPicker(root: HTMLElement, onPick: (photo: PickedPhoto) => v
       return
     }
     if (signal.aborted) return
+    loadedCandidates = candidates
     status.textContent = listStatus(candidates)
     for (const candidate of candidates) {
       renderRow(candidate)
@@ -110,8 +116,15 @@ export function mountPicker(root: HTMLElement, onPick: (photo: PickedPhoto) => v
         })
         .addTo(dots)
     }
-    for (let i = 0; i < candidates.length; i += INFO_BATCH) {
-      const batch = candidates.slice(i, i + INFO_BATCH)
+    failedBatches = []
+    for (let i = 0; i < candidates.length; i += INFO_BATCH) failedBatches.push(candidates.slice(i, i + INFO_BATCH))
+    await loadInfo(signal, candidates)
+  }
+
+  // Loads titles and thumbnails batch by batch. Batches that fail stay in `failedBatches` for Retry.
+  async function loadInfo(signal: AbortSignal, candidates: Candidate[]) {
+    const stillFailed: Candidate[][] = []
+    for (const batch of failedBatches) {
       try {
         const batchInfo = await fetchFileInfo(batch.map((c) => c.pageId))
         if (signal.aborted) return
@@ -122,14 +135,20 @@ export function mountPicker(root: HTMLElement, onPick: (photo: PickedPhoto) => v
         }
       } catch {
         if (signal.aborted) return
+        stillFailed.push(batch)
         for (const c of batch) fillRow(c, undefined)
       }
     }
+    failedBatches = stillFailed
+    const failedCount = stillFailed.reduce((n, batch) => n + batch.length, 0)
+    status.textContent = failedCount > 0 ? infoErrorStatus(failedCount) : listStatus(candidates)
+    retry.hidden = failedCount === 0
   }
 
   select.onchange = load
   shuffle.onclick = load
-  retry.onclick = load
+  // Retry repeats only the file-info batches that failed, so the list is not reshuffled.
+  retry.onclick = () => (failedBatches.length > 0 ? void loadInfo(controller.signal, loadedCandidates) : void load())
   void load()
 
   return () => {

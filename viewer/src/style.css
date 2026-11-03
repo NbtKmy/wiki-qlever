@@ -180,3 +180,13 @@ body,
   font-size: 12px;
   white-space: pre-wrap;
 }
+
+.adjust-host {
+  height: 100%;
+  padding: 0;
+}
+
+.adjust-host > p,
+.adjust-host > button {
+  margin: 12px;
+}

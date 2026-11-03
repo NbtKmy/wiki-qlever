@@ -1,12 +1,11 @@
 import { walk } from './geo'
 import type { AdjustHandle } from './adjustScreen'
 
-type Target = Pick<AdjustHandle, 'viewer' | 'store' | 'ground' | 'sampleGround'>
+type Target = Pick<AdjustHandle, 'viewer' | 'store'>
 
 const WALK_SPEED_M_PER_S = 2
 const LOOK_DEG_PER_PX = 0.1
 const FOV_DEG_PER_WHEEL_UNIT = 0.05
-const GROUND_SAMPLE_INTERVAL_MS = 200
 
 const KEY_DIRECTIONS: Record<string, { forward: number; right: number }> = {
   ArrowUp: { forward: 1, right: 0 },
@@ -26,7 +25,7 @@ const isFormField = (target: EventTarget | null) =>
  * Drag to look around (the scene follows the mouse), arrow keys or WASD to walk, wheel to change the
  * field of view. Replaces Cesium's own camera inputs. Returns a function that removes everything.
  */
-export function attachCameraControls({ viewer, store, ground, sampleGround }: Target): () => void {
+export function attachCameraControls({ viewer, store }: Target): () => void {
   const canvas = viewer.canvas
   viewer.scene.screenSpaceCameraController.enableInputs = false
 
@@ -64,8 +63,6 @@ export function attachCameraControls({ viewer, store, ground, sampleGround }: Ta
 
   let frame = 0
   let last = performance.now()
-  let lastSample = 0
-  let sampling = false
   const tick = (now: number) => {
     const dt = Math.min((now - last) / 1000, 0.1)
     last = now
@@ -80,19 +77,6 @@ export function attachCameraControls({ viewer, store, ground, sampleGround }: Ta
       store.set({
         position: walk(pose.position, pose.headingDeg, forward * WALK_SPEED_M_PER_S * dt, right * WALK_SPEED_M_PER_S * dt),
       })
-      if (!sampling && now - lastSample > GROUND_SAMPLE_INTERVAL_MS) {
-        sampling = true
-        lastSample = now
-        void sampleGround(store.get().position)
-          .then((height) => {
-            if (height === null) return
-            ground.heightM = height
-            store.set({}) // re-apply the pose with the new ground height
-          })
-          .finally(() => {
-            sampling = false
-          })
-      }
     }
     frame = requestAnimationFrame(tick)
   }

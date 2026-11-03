@@ -6,6 +6,7 @@ import { EYE_HEIGHT_M, SWISSTOPO_BUILDINGS_URL, SWISSTOPO_TERRAIN_URL } from './
 import { bearingDeg, resolveGroundHeight, walk, type LonLat } from './geo'
 import { mountPanel } from './panel'
 import type { PickedPhoto } from './pickerScreen'
+import { trackGround } from './groundTracker'
 import { createPoseStore, type CameraPose, type PoseStore } from './poseStore'
 
 Cesium.Ion.defaultAccessToken = import.meta.env.VITE_CESIUM_ION_TOKEN
@@ -40,12 +41,13 @@ export async function mountAdjust(
   photoImg.alt = ''
   photoImg.src = commonsImageUrl(photo.title, PHOTO_WIDTH_PX)
   photoImg.style.opacity = '0.5'
+  let isDirty = () => false // set once the pose store exists
   const toolbar = document.createElement('div')
   toolbar.className = 'toolbar'
   const back = document.createElement('button')
   back.textContent = '← Back to list'
   back.onclick = () => {
-    if (store.isDirty() && !window.confirm('Discard your adjustments?')) return
+    if (isDirty() && !window.confirm('Discard your adjustments?')) return
     onBack()
   }
   toolbar.append(back)
@@ -55,93 +57,108 @@ export async function mountAdjust(
   adjust.append(view)
   root.replaceChildren(adjust)
 
-  const terrainProvider = await Cesium.CesiumTerrainProvider.fromUrl(SWISSTOPO_TERRAIN_URL)
-  const viewer = new Cesium.Viewer(cesiumEl, {
-    terrainProvider,
-    animation: false,
-    timeline: false,
-    baseLayerPicker: false,
-    geocoder: false,
-    homeButton: false,
-    sceneModePicker: false,
-    navigationHelpButton: false,
-    fullscreenButton: false,
-    infoBox: false,
-    selectionIndicator: false,
-  })
-  viewer.scene.primitives.add(await Cesium.Cesium3DTileset.fromUrl(SWISSTOPO_BUILDINGS_URL))
-
-  const sampleGround = async (position: LonLat): Promise<number | null> => {
-    const [sampled] = await Cesium.sampleTerrainMostDetailed(terrainProvider, [
-      Cesium.Cartographic.fromDegrees(position.lon, position.lat),
-    ])
-    return resolveGroundHeight(sampled?.height)
-  }
-
-  const start: LonLat = walk(photo.subject, 0, -START_DISTANCE_M, 0)
-  const subjectGround = await sampleGround(photo.subject)
-  const startGround = await sampleGround(start)
-  const hasCoverage = subjectGround !== null
-  const ground = { heightM: startGround ?? subjectGround ?? 0 }
-
-  const initial: CameraPose = {
-    position: start,
-    heightAboveGroundM: EYE_HEIGHT_M,
-    headingDeg: bearingDeg(start, photo.subject),
-    pitchDeg: 0,
-    fovDeg: 60,
-  }
-  const store = createPoseStore(initial)
-  const warnOnUnload = (e: BeforeUnloadEvent) => {
-    if (store.isDirty()) e.preventDefault()
-  }
-  window.addEventListener('beforeunload', warnOnUnload)
-
-  let detachControls = () => {}
-  if (hasCoverage) {
-    viewer.entities.add({
-      name: 'Depicted place (P9149)',
-      position: Cesium.Cartesian3.fromDegrees(photo.subject.lon, photo.subject.lat, subjectGround),
-      point: { pixelSize: 10, color: Cesium.Color.CYAN, outlineColor: Cesium.Color.WHITE, outlineWidth: 2 },
+  let createdViewer: Cesium.Viewer | undefined
+  const build = async (): Promise<AdjustHandle> => {
+    const terrainProvider = await Cesium.CesiumTerrainProvider.fromUrl(SWISSTOPO_TERRAIN_URL)
+    const viewer = new Cesium.Viewer(cesiumEl, {
+      terrainProvider,
+      animation: false,
+      timeline: false,
+      baseLayerPicker: false,
+      geocoder: false,
+      homeButton: false,
+      sceneModePicker: false,
+      navigationHelpButton: false,
+      fullscreenButton: false,
+      infoBox: false,
+      selectionIndicator: false,
     })
-    const applyPose = (pose: CameraPose) => {
-      viewer.camera.setView({
-        destination: Cesium.Cartesian3.fromDegrees(
-          pose.position.lon,
-          pose.position.lat,
-          ground.heightM + pose.heightAboveGroundM,
-        ),
-        orientation: {
-          heading: Cesium.Math.toRadians(pose.headingDeg),
-          pitch: Cesium.Math.toRadians(pose.pitchDeg),
-          roll: 0,
-        },
-      })
-      ;(viewer.camera.frustum as Cesium.PerspectiveFrustum).fov = Cesium.Math.toRadians(pose.fovDeg)
+    viewer.scene.primitives.add(await Cesium.Cesium3DTileset.fromUrl(SWISSTOPO_BUILDINGS_URL))
+
+    const sampleGround = async (position: LonLat): Promise<number | null> => {
+      const [sampled] = await Cesium.sampleTerrainMostDetailed(terrainProvider, [
+        Cesium.Cartographic.fromDegrees(position.lon, position.lat),
+      ])
+      return resolveGroundHeight(sampled?.height)
     }
-    store.subscribe(applyPose)
-    applyPose(store.get())
-    mountPanel(adjust, store, photoImg, photo.title)
-    detachControls = attachCameraControls({ viewer, store, ground, sampleGround })
-  } else {
-    const banner = document.createElement('div')
-    banner.className = 'adjust-banner'
-    banner.textContent = 'No 3D data here: this photo is outside the swisstopo coverage.'
-    view.append(banner)
+
+    const start: LonLat = walk(photo.subject, 0, -START_DISTANCE_M, 0)
+    const subjectGround = await sampleGround(photo.subject)
+    const startGround = await sampleGround(start)
+    const hasCoverage = subjectGround !== null
+    const ground = { heightM: startGround ?? subjectGround ?? 0 }
+
+    const initial: CameraPose = {
+      position: start,
+      heightAboveGroundM: EYE_HEIGHT_M,
+      headingDeg: bearingDeg(start, photo.subject),
+      pitchDeg: 0,
+      fovDeg: 60,
+    }
+    const store = createPoseStore(initial)
+    const warnOnUnload = (e: BeforeUnloadEvent) => {
+      if (store.isDirty()) e.preventDefault()
+    }
+    window.addEventListener('beforeunload', warnOnUnload)
+
+    let detachControls = () => {}
+    if (hasCoverage) {
+      viewer.entities.add({
+        name: 'Depicted place (P9149)',
+        position: Cesium.Cartesian3.fromDegrees(photo.subject.lon, photo.subject.lat, subjectGround),
+        point: { pixelSize: 10, color: Cesium.Color.CYAN, outlineColor: Cesium.Color.WHITE, outlineWidth: 2 },
+      })
+      const applyPose = (pose: CameraPose) => {
+        viewer.camera.setView({
+          destination: Cesium.Cartesian3.fromDegrees(
+            pose.position.lon,
+            pose.position.lat,
+            ground.heightM + pose.heightAboveGroundM,
+          ),
+          orientation: {
+            heading: Cesium.Math.toRadians(pose.headingDeg),
+            pitch: Cesium.Math.toRadians(pose.pitchDeg),
+            roll: 0,
+          },
+        })
+        ;(viewer.camera.frustum as Cesium.PerspectiveFrustum).fov = Cesium.Math.toRadians(pose.fovDeg)
+      }
+      store.subscribe(applyPose)
+      applyPose(store.get())
+      mountPanel(adjust, store, photoImg, photo.title)
+      const stopGround = trackGround(store, ground, sampleGround)
+      const stopControls = attachCameraControls({ viewer, store })
+      detachControls = () => {
+        stopGround()
+        stopControls()
+      }
+    } else {
+      const banner = document.createElement('div')
+      banner.className = 'adjust-banner'
+      banner.textContent = 'No 3D data here: this photo is outside the swisstopo coverage.'
+      view.append(banner)
+    }
+
+    return {
+      dispose() {
+        window.removeEventListener('beforeunload', warnOnUnload)
+        detachControls()
+        viewer.destroy()
+        root.replaceChildren()
+      },
+      store,
+      viewer,
+      photoImg,
+      ground,
+      sampleGround,
+      hasCoverage,
+    }
   }
 
-  return {
-    dispose() {
-      window.removeEventListener('beforeunload', warnOnUnload)
-      detachControls()
-      viewer.destroy()
-      root.replaceChildren()
-    },
-    store,
-    viewer,
-    photoImg,
-    ground,
-    sampleGround,
-    hasCoverage,
+  try {
+    return await build()
+  } catch (error) {
+    createdViewer?.destroy() // do not leak the WebGL context when the scene fails to load
+    throw error
   }
 }
