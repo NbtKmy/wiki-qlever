@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest'
-import { bearingDeg, formatResult, normalizeDegrees, offsetByMeters, resolveGroundHeight, walk } from './geo'
+import {
+  bearingDeg,
+  formatResult,
+  metersBetween,
+  normalizeDegrees,
+  offsetByMeters,
+  resolveGroundHeight,
+  walk,
+} from './geo'
 
 const camera = { lon: 8.5399621, lat: 47.3769854 }
 const subject = { lon: 8.539965, lat: 47.377135 }
@@ -17,6 +25,12 @@ describe('geo', () => {
     const p = offsetByMeters({ lon: 8.54, lat: 47.377 }, 100, 111.32)
     expect(p.lat).toBeCloseTo(47.378, 4)
     expect(p.lon).toBeCloseTo(8.5413264, 4)
+  })
+  it('measures east and north metres between two points', () => {
+    const origin = { lon: 8.54, lat: 47.377 }
+    const d = metersBetween(origin, offsetByMeters(origin, 40, -25))
+    expect(d.eastM).toBeCloseTo(40, 3)
+    expect(d.northM).toBeCloseTo(-25, 3)
   })
   it('walks relative to the heading', () => {
     const east = walk(camera, 90, 10, 0)

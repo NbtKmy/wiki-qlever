@@ -30,6 +30,14 @@ export function offsetByMeters(origin: LonLat, eastM: number, northM: number): L
   }
 }
 
+/** Inverse of `offsetByMeters`: how far east and north `target` is from `origin`. */
+export function metersBetween(origin: LonLat, target: LonLat): { eastM: number; northM: number } {
+  return {
+    eastM: (target.lon - origin.lon) * METERS_PER_DEGREE_LAT * Math.cos(toRadians(origin.lat)),
+    northM: (target.lat - origin.lat) * METERS_PER_DEGREE_LAT,
+  }
+}
+
 /** Move forward and to the right relative to a compass heading. */
 export function walk(origin: LonLat, headingDeg: number, forwardM: number, rightM: number): LonLat {
   const h = toRadians(headingDeg)

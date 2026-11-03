@@ -1,8 +1,10 @@
 import * as Cesium from 'cesium'
 import 'cesium/Build/Cesium/Widgets/widgets.css'
+import { attachCameraControls } from './cameraControls'
 import { commonsImageUrl } from './commons'
 import { EYE_HEIGHT_M, SWISSTOPO_BUILDINGS_URL, SWISSTOPO_TERRAIN_URL } from './config'
 import { bearingDeg, resolveGroundHeight, walk, type LonLat } from './geo'
+import { mountPanel } from './panel'
 import type { PickedPhoto } from './pickerScreen'
 import { createPoseStore, type CameraPose, type PoseStore } from './poseStore'
 
@@ -88,6 +90,7 @@ export async function mountAdjust(
   }
   const store = createPoseStore(initial)
 
+  let detachControls = () => {}
   if (hasCoverage) {
     viewer.entities.add({
       name: 'Depicted place (P9149)',
@@ -111,6 +114,8 @@ export async function mountAdjust(
     }
     store.subscribe(applyPose)
     applyPose(store.get())
+    mountPanel(adjust, store, photoImg)
+    detachControls = attachCameraControls({ viewer, store, ground, sampleGround })
   } else {
     const banner = document.createElement('div')
     banner.className = 'adjust-banner'
@@ -120,6 +125,7 @@ export async function mountAdjust(
 
   return {
     dispose() {
+      detachControls()
       viewer.destroy()
       root.replaceChildren()
     },
