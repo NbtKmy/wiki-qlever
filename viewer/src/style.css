@@ -89,3 +89,38 @@ body,
   padding: 6px 12px;
   cursor: pointer;
 }
+
+.adjust {
+  display: flex;
+  height: 100%;
+}
+
+.adjust-view {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+
+.adjust-cesium {
+  position: absolute;
+  inset: 0;
+}
+
+.adjust-photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+.adjust-banner {
+  position: absolute;
+  top: 50px;
+  left: 10px;
+  padding: 8px 12px;
+  background: #fff3cd;
+  color: #664d03;
+  border-radius: 4px;
+}

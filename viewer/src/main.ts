@@ -9,14 +9,14 @@ function showPicker() {
   dispose = mountPicker(app, showAdjust)
 }
 
-// Replaced by the real adjust screen in Task 5.
-function showAdjust(photo: PickedPhoto) {
+async function showAdjust(photo: PickedPhoto) {
   dispose?.()
   dispose = null
-  const back = document.createElement('button')
-  back.textContent = '← Back to list'
-  back.onclick = showPicker
-  app.replaceChildren(back, document.createTextNode(` Picked: ${photo.title}`))
+  app.textContent = 'Loading the 3D scene…'
+  // Cesium is large, so it is loaded only when the adjust screen is opened.
+  const { mountAdjust } = await import('./adjustScreen')
+  const handle = await mountAdjust(app, photo, showPicker)
+  dispose = handle.dispose
 }
 
 showPicker()
