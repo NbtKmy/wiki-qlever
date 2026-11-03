@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite'
+import { defineConfig } from 'vitest/config'
 import { viteStaticCopy } from 'vite-plugin-static-copy'
 
 // VITE_BASE is set for GitHub Pages builds, e.g. "/wiki-qlever/".
@@ -11,6 +11,7 @@ export default defineConfig({
     // Tells CesiumJS where to load Workers, Assets, Widgets and ThirdParty from.
     CESIUM_BASE_URL: JSON.stringify(`${base}cesium`),
   },
+  test: { environment: 'node' },
   plugins: [
     viteStaticCopy({
       targets: ['Workers', 'ThirdParty', 'Assets', 'Widgets'].map((dir) => ({
