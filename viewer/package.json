@@ -10,12 +10,14 @@
     "test": "vitest run"
   },
   "devDependencies": {
+    "@types/leaflet": "^1.9.22",
     "typescript": "~7.0.2",
     "vite": "^8.3.5",
     "vite-plugin-static-copy": "^4.1.1",
     "vitest": "^5.1.0"
   },
   "dependencies": {
-    "cesium": "^1.147.0"
+    "cesium": "^1.147.0",
+    "leaflet": "^1.9.4"
   }
 }

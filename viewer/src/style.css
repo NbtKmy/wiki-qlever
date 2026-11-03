@@ -6,6 +6,75 @@ body,
   margin: 0;
   padding: 0;
   overflow: hidden;
+  font-family: system-ui, sans-serif;
+}
+
+.picker {
+  display: flex;
+  height: 100%;
+}
+
+.picker-list {
+  display: flex;
+  flex-direction: column;
+  width: 45%;
+  min-width: 320px;
+}
+
+.picker-header {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 8px;
+  border-bottom: 1px solid #ddd;
+}
+
+.picker-rows {
+  flex: 1;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.picker-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 6px 8px;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+}
+
+.picker-row:hover {
+  background: #f2f6fb;
+}
+
+.picker-row.disabled {
+  color: #999;
+  cursor: not-allowed;
+}
+
+.picker-thumb {
+  flex: none;
+  width: 60px;
+  height: 60px;
+  background: #ddd;
+}
+
+.picker-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.picker-title {
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.picker-map {
+  flex: 1;
 }
 
 .toolbar {
