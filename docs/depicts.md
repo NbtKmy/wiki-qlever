@@ -93,6 +93,10 @@ The IIIF proxy that [iiif.io documents for Commons](https://iiif.io/guides/guide
 - To **draw** existing boxes, put an absolutely positioned element over the image with `left`, `top`, `width` and `height` set to the four numbers in percent.
 - To **capture** a box, let the user drag on the image and compute `(left, top, width, height) ÷ displayed size × 100`.
 
+## See also
+
+[`depicts-suggestions.md`](depicts-suggestions.md): how to propose `depicts` values for files that have none.
+
 ## Open questions
 
 - Does `P2677` refer to the image as stored or as displayed when the file has an EXIF rotation? Test with a rotated file before building on it.

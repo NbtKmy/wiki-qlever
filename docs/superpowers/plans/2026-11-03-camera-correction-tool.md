@@ -132,7 +132,7 @@ it('parses bindings into candidates and skips non-point values', () => {
 ```
 
 - [ ] **Step 2: Run `npx vitest run src/candidates.test.ts`.** Expected: FAIL.
-- [ ] **Step 3: Implement.** The query selects `?m ?c`, takes longitude and latitude from the WKT with `STRBEFORE`/`STRAFTER` as in `docs/qlever-commons.md`, and filters on the region box. `fetchCandidates` GETs the endpoint with `Accept: application/sparql-results+json`.
+- [ ] **Step 3: Implement.** The query selects `?m ?c`, takes longitude and latitude from the WKT with `STRBEFORE`/`STRAFTER` as in `docs/qlever-basics.md`, and filters on the region box. `fetchCandidates` GETs the endpoint with `Accept: application/sparql-results+json`.
 - [ ] **Step 4: Run `npx vitest run`.** Expected: pass.
 - [ ] **Step 5: Verify against the live endpoint** with a throwaway script run by `npx tsx` or in the browser console: `fetchCandidates(REGIONS[0])` returns between 1 and 100 candidates in about 4 seconds.
 - [ ] **Step 6: Commit** `git commit -m "Add candidate query for the photo picker"` (add both files).

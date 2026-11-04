@@ -27,7 +27,7 @@ Every statement we add unlocks something. Some ideas, from ready to ambitious:
 
 Most bulk-uploaded collections carry little of this data. In a random sample of 600 files from the ETH Library collection (60,449 files), about nine in ten have no `depicts` statement and only 3 have a camera position (`P1259`). The `P195` statement exists on about 8.2 million Commons files (as of 23 October 2026), mostly from US institutions. Zentralbibliothek Zürich uses it, and one query returns its 7,224 files. For the other Swiss collections we checked, it is missing or nearly so.
 
-These are collections we picked, not a survey of all Swiss institutions. The measurements and a chart are in [`docs/qlever-commons.md`](docs/qlever-commons.md).
+These are collections we picked, not a survey of all Swiss institutions. The measurements and a chart are in [`docs/collections.md`](docs/collections.md).
 
 ## How we get there
 
@@ -67,7 +67,6 @@ The question behind the project: how can we turn millions of openly available cu
 
 This repository contains the documents and code for the project "wiki-qlever" at the [GLAMhack 2026](https://hack.glam.opendata.ch/event/13).
 
-- [`docs/`](docs/README.md): start here. Pick a topic (regions inside images, camera position, collections, querying) and follow the link.
-- [`docs/qlever-commons.md`](docs/qlever-commons.md): guide to the QLever endpoint for Commons, with the measurements and test results mentioned above. It is being split by topic.
+- [`docs/`](docs/README.md): start here. Pick a topic (regions inside images, suggesting depicts values, camera position, collections, querying) and follow the link. The measurements and test results mentioned above live there.
 - [`presentations/assets/`](presentations/assets/): screenshot and charts used in this description and in the docs.
 - [`viewer/`](viewer/): the 3D viewer for correcting camera positions of Commons photos (see its README).
