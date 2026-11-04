@@ -95,7 +95,7 @@ The IIIF proxy that [iiif.io documents for Commons](https://iiif.io/guides/guide
   - Without `width` you get the original. For a TIFF (all the ETH-Bibliothek files we looked at) that is `image/tiff`, which most browsers cannot show. Always pass `width`; the thumbnail is a JPEG.
   - Measure the box on the loaded image's displayed size, not on a number you assumed.
 
-A minimal example is [`viewer/public/box-annotator.html`](../viewer/public/box-annotator.html), one HTML file with no build step. Enter a Commons file name, drag on the image, and it prints the `pct:x,y,w,h` value. It only measures a rectangle; it does not read or write Commons statements. Once the Pages deployment has run, it is served next to the 3D viewer at `https://nbtkmy.github.io/wiki-qlever/box-annotator.html`.
+**A simple tool already exists:** the [box annotator](https://nbtkmy.github.io/wiki-qlever/box-annotator.html) (source: [`viewer/public/box-annotator.html`](../viewer/public/box-annotator.html), one HTML file with no build step). Enter a Commons file name, drag on the image, and it prints the `pct:x,y,w,h` value. It only measures a rectangle; it does not read or write Commons statements. It is a starting point for anyone who wants to build a proper annotation tool.
 - To **draw** existing boxes, put an absolutely positioned element over the image with `left`, `top`, `width` and `height` set to the four numbers in percent.
 - To **capture** a box, let the user drag on the image and compute `(left, top, width, height) ÷ displayed size × 100`.
 

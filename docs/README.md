@@ -8,7 +8,7 @@ New to the project? Read the [main README](../README.md) first, then pick a path
 
 | I want to… | Read | Where we stand |
 |---|---|---|
-| **Mark objects inside an image** with a rectangle and say what they are (training data, annotation tools) | [`depicts.md`](depicts.md) | Rectangles exist on Commons, but only on about 8,000 files, and almost none from Swiss institutions. |
+| **Mark objects inside an image** with a rectangle and say what they are (training data, annotation tools) | [`depicts.md`](depicts.md) | Rectangles exist on Commons, but only on about 8,000 files, and almost none from Swiss institutions. A [one-file tool](https://nbtkmy.github.io/wiki-qlever/box-annotator.html) measures a rectangle on any Commons image. |
 | **Suggest what a file shows** when it has no `depicts` statement (from the file name, caption or the image) | [`depicts-suggestions.md`](depicts-suggestions.md) | Two small hand-judged experiments: file names give a usable candidate for about a third of the files, the image adds objects and text. A human must review. |
 | **Put photos on a map or in 3D** (camera position, viewing direction, depicted place) | [`geocode.md`](geocode.md) | We have a [3D viewer](../viewer/) and a manual write test. Most collections have no coordinates. |
 | **Work with a whole institution** at once (collection statement `P195`, gaps per collection) | [`collections.md`](collections.md) | `P195` works for Zentralbibliothek Zürich, but is missing for most other Swiss collections we checked. |
