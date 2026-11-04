@@ -20,7 +20,7 @@ Every statement we add unlocks something. Some ideas, from ready to ambitious:
 - **Viewing directions on a map.** Where was the camera, and what was it pointing at? Draw it for a whole collection of historic aerial photographs.
 - **One mountain, many archives.** All photos of the same peak, bridge or building from different institutions, side by side.
 - **A whole institution in one query.** With the *collection* statement (`P195`), one query returns every file of an institution, with its metadata. No scraping, no category walking.
-- **Training data.** `depicts` (`P180`) can carry a position inside the image (`P2677`). Together with geodata, that is a starting point for labelled data for computer vision. We have not tried this yet.
+- **Training data.** `depicts` (`P180`) can carry a position inside the image (`P2677`). Together with geodata, that is a starting point for labelled data for computer vision. About 8,000 Commons files have such boxes today, almost none from Swiss institutions ([details](docs/depicts.md)). We have not tried this yet.
 - **A map of what is still missing.** Which collection is nearly complete, which one is almost empty? Show it to the institutions.
 
 ## Why it does not work for most collections yet
@@ -67,6 +67,7 @@ The question behind the project: how can we turn millions of openly available cu
 
 This repository contains the documents and code for the project "wiki-qlever" at the [GLAMhack 2026](https://hack.glam.opendata.ch/event/13).
 
-- [`docs/qlever-commons.md`](docs/qlever-commons.md): guide to the QLever endpoint for Commons, with all measurements and test results mentioned above.
+- [`docs/`](docs/README.md): start here. Pick a topic (regions inside images, camera position, collections, querying) and follow the link.
+- [`docs/qlever-commons.md`](docs/qlever-commons.md): guide to the QLever endpoint for Commons, with the measurements and test results mentioned above. It is being split by topic.
 - [`presentations/assets/`](presentations/assets/): screenshot and charts used in this description and in the docs.
 - [`viewer/`](viewer/): the 3D viewer for correcting camera positions of Commons photos (see its README).
