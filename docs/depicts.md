@@ -89,7 +89,11 @@ The depiction guide also lists tools "with depicts capabilities" without saying 
 
 The IIIF proxy that [iiif.io documents for Commons](https://iiif.io/guides/guides/wikipedia.org/) no longer works (checked 4 November 2026): `tools.wmflabs.org/zoomviewer/…` redirects to `zoomviewer.toolforge.org`, which answers `404`. You do not need it.
 
-- Load the image from `https://commons.wikimedia.org/wiki/Special:FilePath/<file name>?width=1600`.
+- Load the image from `https://commons.wikimedia.org/wiki/Special:FilePath/<file name>?width=<w>`. Observed on 4 November 2026:
+  - The width is not taken literally. `width=1600` returned a 1920 px thumbnail, so Commons seems to snap to fixed steps. The aspect ratio is kept, so percentages still match.
+  - A width larger than the original returns the original file.
+  - Without `width` you get the original. For a TIFF (all the ETH-Bibliothek files we looked at) that is `image/tiff`, which most browsers cannot show. Always pass `width`; the thumbnail is a JPEG.
+  - Measure the box on the loaded image's displayed size, not on a number you assumed.
 - To **draw** existing boxes, put an absolutely positioned element over the image with `left`, `top`, `width` and `height` set to the four numbers in percent.
 - To **capture** a box, let the user drag on the image and compute `(left, top, width, height) ÷ displayed size × 100`.
 
@@ -99,7 +103,7 @@ The IIIF proxy that [iiif.io documents for Commons](https://iiif.io/guides/guide
 
 ## Open questions
 
-- Does `P2677` refer to the image as stored or as displayed when the file has an EXIF rotation? Test with a rotated file before building on it.
+- Does `P2677` refer to the image as stored or as displayed when the file has an EXIF rotation? Not tested, and probably rare; check it only if a tool starts writing boxes.
 - Which of the 102 non-`pct:` values are errors, and who writes them?
 - Which tool, if any, writes `P2677` on Commons today?
 - Can a polygon be stored? The documentation we found only shows rectangles.
