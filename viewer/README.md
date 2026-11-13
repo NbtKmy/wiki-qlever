@@ -21,6 +21,10 @@ The Cesium ion token is only used for the satellite imagery. It ends up in the p
 - Drag: look around. Arrow keys or WASD: walk. Wheel: field of view.
 - Panel sliders: fine tuning (photo opacity, east–west, north–south, height above ground, heading, field of view). The "–" button minimises the panel.
 
+## Depicts review (second page)
+
+`review.html` is a second page in the same build: <http://localhost:5173/review.html> in development, `/wiki-qlever/review.html` on GitHub Pages. It lists files of a collection that have no `depicts` (`P180`) statement, suggests Wikidata items from the file name, and exports what a reviewer accepts as QuickStatements commands. It does not need the Cesium token. How it works and what is still untested: [`../docs/depicts-review.md`](../docs/depicts-review.md).
+
 ## Publish
 
 Pushing to `main` builds and deploys to GitHub Pages (`.github/workflows/pages.yml`). Once per repository: add the secret `VITE_CESIUM_ION_TOKEN` and set Pages source to "GitHub Actions".

@@ -12,6 +12,10 @@ export default defineConfig({
     CESIUM_BASE_URL: JSON.stringify(`${base}cesium`),
   },
   test: { environment: 'node' },
+  build: {
+    // Two pages: the camera position viewer and the depicts review.
+    rollupOptions: { input: { main: 'index.html', review: 'review.html' } },
+  },
   plugins: [
     viteStaticCopy({
       targets: ['Workers', 'ThirdParty', 'Assets', 'Widgets'].map((dir) => ({
