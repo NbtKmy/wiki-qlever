@@ -183,11 +183,43 @@ describe('real file names', () => {
     expect(parsed.terms[0].humanOnly).toBe(true)
     expect(parsed.terms.map((t) => [t.text, t.kind])).toEqual([
       ['Robert Breitinger', 'text'],
+      // "Bern, Kornhaus" has the same shape and is the Kornhaus in Bern.
+      ['Robert Breitinger', 'place'],
       ['Breitinger', 'place'],
       ['Robert', 'place'],
     ])
+    expect(parsed.terms[1].humanOnly).toBeUndefined()
     expect(parsed.terms[0].caution).toMatch(/photographer/)
     expect(texts(zb('Circus Herzog, Gebäude'))).toEqual(['Circus Herzog', 'Gebäude'])
+  })
+  it('reads National Library titles: siglum, shelf mark, photographer and collection go', () => {
+    expect(subjectFromFileName('CH-NB - Persien- Alltagsszene - Annemarie Schwarzenbach - SLA-Schwarzenbach-A-5-04-177.jpg')).toBe(
+      'Persien- Alltagsszene',
+    )
+    expect(subjectFromFileName('CH-NB - Bern, Mittelland, Trachten - Collection Gugelmann - GS-GUGE-LORY-E-13.tif')).toBe(
+      'Bern, Mittelland, Trachten',
+    )
+    expect(subjectFromFileName('CH-NB-Souvenir de Berne-nbdig-18138-page001.tif')).toBe('Souvenir de Berne')
+    expect(subjectFromFileName('CH-NB - Collection Gugelmann - GS-GUGE-100-11.tif')).toBe('')
+  })
+  it('searches in the country the title names, with the topic next to the place', () => {
+    const isfahan = parseTitle('CH-NB - Persien, Isfahan- Freitagsmoschee - Annemarie Schwarzenbach - SLA-Schwarzenbach-A-5-07-001.jpg')
+    expect(isfahan.terms.map((t) => [t.text, t.country])).toEqual([
+      ['Freitagsmoschee Isfahan', 'Q794'],
+      ['Isfahan', 'Q794'],
+      ['Persien', undefined],
+    ])
+    // A topic that only names the kind of picture is not searched.
+    expect(texts('CH-NB - Russland, Leningrad (Sankt Petersburg)- Boote - Annemarie Schwarzenbach - SLA-Schwarzenbach-A-5-03-001.jpg')).toEqual([
+      'Leningrad',
+      'Sankt Petersburg',
+      'Russland',
+    ])
+    expect(texts('CH-NB - Schweden, Österby- Stahlfabrik Lokalisierung unsicher - Annemarie Schwarzenbach - SLA-Schwarzenbach-A-5-17-221.jpg')[0]).toBe(
+      'Stahlfabrik Österby',
+    )
+    expect(texts('CH-NB - Grafiken Orts- und Landschaftsansichten - GS-GRAF-ANSI-AG-10.tif')).toEqual(['Grafiken Orts- und Landschaftsansichten'])
+    expect(texts('CH-NB - Resti, Burgruine - Collection Gugelmann - GS-GUGE-1-2.tif')).toContain('Burgruine Resti')
   })
   it('reads a trailing NW as a direction, not as the canton of Nidwalden', () => {
     expect(parseTitle(zb('Dolder Waldhaus NW')).terms).toEqual([{ text: 'Dolder Waldhaus', kind: 'place', source: 'file name' }])

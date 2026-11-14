@@ -21,6 +21,8 @@ export type SearchTerm = {
   humanOnly?: boolean
   /** Keep only items whose label contains the term as whole words ("Fritz Wunderli" is not "Fritz Wunderlich"). */
   wholeWord?: boolean
+  /** The file name names a country ("Persien, Isfahan"): search and rank in that country instead. */
+  country?: string
 }
 
 export type HeadingHint = {
@@ -56,6 +58,29 @@ const LOCATED = /^(.+?)\s+(?:in|bei|am|an der|a\.\s?d\.|zu|ob|auf dem|auf der)\s
 const PART_BREAK = /,|(?<=\p{L}{4})(?<!\bProf)\.\s+(?=[\p{Lu}\d])/u
 // Two capitalised words are a person as often as a place; these openers settle it for places.
 const PLACE_OPENER = /^(?:St|Sankt|Bad|La|Le|Les|San|Santa|Monte|Mont|Piz|Col|Val|Lac|Lago|Ober|Unter|Alt|Neu)\b/
+
+// National Library ("CH-NB - …") and similar sigla at the start of a file name.
+const SIGLUM = /^(?:CH-NB|CH-BAR|CH-SLA)(?:\s*-\s*|-|\s+)/
+// "…-nbdig-18138-page001", "…-19304-page060": digitised books and albums.
+const BOOK_PAGE = /-(?:nbdig-)?\d{4,}-(?:page)?\d+$/
+// A segment that is only a shelf mark: "SLA-Schwarzenbach-A-5-08-146", "GS-GUGE-LORY-E-13", "EAD-WEHR-7008-B".
+const SHELF_MARK = /^[A-Z][\w'.]*(?:-[\w'. ]+){2,}$/
+// "Persien, Isfahan- Freitagsmoschee": a hyphen right after a word, then a space, separates place and topic.
+const TOPIC_BREAK = /(?<=[\p{L})])-\s+(?!und\b|oder\b|bis\b)/u
+// Topics that name a kind of picture, not a thing on Wikidata worth searching with the place.
+const GENRES = new Set(['menschen', 'landschaft', 'alltagsszene', 'dorf', 'ort', 'bauten', 'boote', 'schulkinder', 'schiff', 'kinder', 'frauen', 'männer', 'strasse', 'strassenszene', 'markt', 'stadt', 'stadtansicht', 'gebäude', 'architektur', 'leute', 'personen', 'portrait', 'porträt', 'tiere', 'vegetation', 'reise', 'reisegruppe', 'auto', 'autos', 'fahrzeug', 'unterwegs', 'gruppe', 'innenansicht', 'ansicht', 'detail', 'szene', 'sonstiges'])
+// Country names as German captions write them, with the Wikidata item of today's country.
+const COUNTRIES: Record<string, string> = {
+  schweiz: 'Q39', persien: 'Q794', iran: 'Q794', afghanistan: 'Q889', türkei: 'Q43', schweden: 'Q34', finnland: 'Q33',
+  norwegen: 'Q20', dänemark: 'Q35', estland: 'Q191', lettland: 'Q211', litauen: 'Q37', russland: 'Q159', sowjetunion: 'Q159',
+  polen: 'Q36', ostpreussen: 'Q36', deutschland: 'Q183', österreich: 'Q40', italien: 'Q38', frankreich: 'Q142',
+  spanien: 'Q29', portugal: 'Q45', belgien: 'Q31', niederlande: 'Q55', holland: 'Q55', england: 'Q145', grossbritannien: 'Q145',
+  irland: 'Q27', griechenland: 'Q41', ungarn: 'Q28', tschechoslowakei: 'Q213', rumänien: 'Q218', bulgarien: 'Q219',
+  irak: 'Q796', syrien: 'Q858', libanon: 'Q822', palästina: 'Q801', israel: 'Q801', ägypten: 'Q79', marokko: 'Q1028',
+  'spanisch-marokko': 'Q1028', tunesien: 'Q948', algerien: 'Q262', 'belgisch-kongo': 'Q974', kongo: 'Q974', angola: 'Q916',
+  indien: 'Q668', 'britisch-indien': 'Q668', usa: 'Q30', amerika: 'Q30', kanada: 'Q16', mexiko: 'Q96', japan: 'Q17', china: 'Q148',
+}
+const UNSURE = /\s*Lokalisierung unsicher\s*/gi
 
 const COMPASS: Record<string, number> = {
   n: 0, nord: 0, norden: 0,
@@ -93,11 +118,28 @@ export function subjectFromFileName(fileName: string): string {
   rest = hadInventory || !eth ? withoutInventory : rest.replace(/-[^-]*\d{3,}[^-]*$/, '')
   if (eth || hadInventory) return tidy(rest.replace(ETH_SERIES, ''))
 
+  const sigla = SIGLUM.test(name)
+  name = name.replace(SIGLUM, '').replace(BOOK_PAGE, '')
   const segments = name.split(/\s+[-–]\s+/)
   if (segments.length > 1) {
     if (INSTITUTION.test(segments[0])) segments.shift()
     const last = segments[segments.length - 1]
     if (segments.length > 1 && /^[\w.]*\d{4,}[\w.]*$/.test(last)) segments.pop()
+    if (sigla) {
+      // "Persien- Alltagsszene - Annemarie Schwarzenbach - SLA-Schwarzenbach-A-5-04-177": drop the shelf
+      // mark, the collection and the photographer just before the shelf mark.
+      const kept: string[] = []
+      for (let i = 0; i < segments.length; i++) {
+        const segment = segments[i]
+        if (SHELF_MARK.test(segment) && /\d/.test(segment)) {
+          if (kept.length > 1 && NAME_LIKE.test(kept[kept.length - 1]) && !/,/.test(kept[kept.length - 1])) kept.pop()
+          continue
+        }
+        if (INSTITUTION.test(segment)) continue
+        kept.push(segment)
+      }
+      return tidy(kept.join(' - '))
+    }
     return tidy(segments.join(' - '))
   }
   return tidy(name)
@@ -162,7 +204,7 @@ export function parseTitle(fileName: string): ParsedTitle {
   const add = (term: SearchTerm) => {
     const text = tidy(term.text).replace(/\.$/, '')
     if (!usable(text)) return
-    if (terms.some((t) => t.text.toLowerCase() === text.toLowerCase())) return
+    if (terms.some((t) => t.text.toLowerCase() === text.toLowerCase() && !!t.humanOnly === !!term.humanOnly)) return
     terms.push({ ...term, text })
   }
 
@@ -172,12 +214,30 @@ export function parseTitle(fileName: string): ParsedTitle {
     return { subject, terms, heading }
   }
 
-  let cleaned = subject.replace(ALTITUDE, '')
+  let cleaned = subject.replace(ALTITUDE, '').replace(UNSURE, ' ')
   if (heading) cleaned = cleaned.replace(heading.phrase, '')
+  // "Persien, Isfahan- Freitagsmoschee": the place, then what the photo shows there.
+  const [placeText, ...topicParts] = cleaned.split(TOPIC_BREAK)
+  const topic = tidy(topicParts.join(' ')).replace(/\s*\([^)]*\)/g, '')
+  cleaned = placeText
+  let country: string | undefined
+  let countryName: string | undefined
   // "Genf = Genève" gives the same place in two languages.
   for (const variant of cleaned.split(/\s+=\s+/)) {
-    const parts = joinParticles(variant.split(PART_BREAK).map(tidy).filter(Boolean))
-    // "Breitinger, Robert": two single words can be "Surname, Forename". Try the full name first.
+    let parts = joinParticles(variant.split(PART_BREAK).map(tidy).filter(Boolean))
+    // "Persien, Isfahan": the country is context for the other parts, not the subject.
+    if (parts.length > 1 && COUNTRIES[parts[0].toLowerCase()]) {
+      countryName = parts[0]
+      country = COUNTRIES[parts[0].toLowerCase()]
+      parts = parts.slice(1)
+    }
+    const inCountry = country ? { country } : {}
+    const lastPlace = parts.length > 0 ? parts[parts.length - 1].replace(/\s*\([^)]*\)/g, '') : ''
+    if (topic && lastPlace && !GENRES.has(topic.split(/[\s,]+/)[0].toLowerCase())) {
+      add({ text: `${topic.split(',')[0]} ${lastPlace}`, kind: 'place', source: 'file name: topic and place together', ...inCountry })
+    }
+    // "Breitinger, Robert": two single words can be "Surname, Forename", and "Bern, Kornhaus" is the
+    // Kornhaus in Bern. Search both parts together twice: once for people only, once for anything.
     if (parts.length === 2 && parts.every((p) => /^\p{Lu}\p{L}+$/u.test(p))) {
       add({
         text: `${parts[1]} ${parts[0]}`,
@@ -186,8 +246,11 @@ export function parseTitle(fileName: string): ParsedTitle {
         caution: `If this is a person: ${PERSON_CAUTION}`,
         // "Steckborn, Untersee" reads the same way; only people are kept for this guess.
         humanOnly: true,
+        ...inCountry,
       })
+      add({ text: `${parts[1]} ${parts[0]}`, kind: 'place', source: 'file name: both parts together', ...inCountry })
     }
+    const before = terms.length
     parts.forEach((rawPart, index) => {
       const canton = COMPASS_CODE.test(rawPart) ? null : rawPart.match(CANTON_SUFFIX)
       const untitled = (canton ? canton[1] : rawPart).replace(TITLES, '')
@@ -197,6 +260,8 @@ export function parseTitle(fileName: string): ParsedTitle {
         .replace(/^\d+\.\s+/, '')
         .replace(COMPASS_CODE, '')
         .replace(/^S\. /, 'St. ')
+        // "Die Festung St. Luzisteig": a German article is not part of a Wikidata label.
+        .replace(/^(?:Die|Der|Das)\s+(?=\p{Lu})/u, '')
         .replace(/\s*\([^)]*\)$/, '')
       const where = parts.length > 1 ? `file name, part ${index + 1} of ${parts.length}` : 'file name'
 
@@ -246,7 +311,14 @@ export function parseTitle(fileName: string): ParsedTitle {
           caution: 'Only part of the name matched.',
         })
       }
+      // "Leningrad (Sankt Petersburg)", "Täbris (Täbriz)": the other name in brackets.
+      const other = untitled.match(/\(([^)]+)\)$/)
+      if (other && !/^\d/.test(other[1]) && !/^[A-ZÄÖÜ]{2,6}$/.test(other[1])) {
+        add({ text: other[1].split(',')[0], kind: 'place', source: 'file name: other name in brackets' })
+      }
     })
+    if (country) for (let i = before; i < terms.length; i++) terms[i] = { ...terms[i], country }
   }
+  if (countryName) add({ text: countryName, kind: 'place', source: 'file name: country', caution: 'The country rarely is what the photo shows.' })
   return { subject, terms: terms.slice(0, MAX_TERMS), heading }
 }

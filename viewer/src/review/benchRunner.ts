@@ -16,7 +16,7 @@ import { fetchContext } from './context'
 import { buildMemory, recall } from './memory'
 import { COMMONS_ENDPOINT, sparql, WIKIDATA_ENDPOINT } from './qlever'
 import { parseTitle } from './titleParse'
-import { suggest } from './wikidata'
+import { suggest, type Group } from './wikidata'
 
 export type BenchOptions = {
   collection: string
@@ -32,6 +32,8 @@ export type BenchOptions = {
   withoutCategories?: boolean
   pauseMs?: number
   onProgress?: (done: number, total: number, last: FileResult) => void
+  /** Sees the card of every file, for looking at the misses. */
+  onGroups?: (file: AnnotatedFile, groups: Group[]) => void
   signal?: AbortSignal
 }
 
@@ -77,6 +79,7 @@ export async function runBenchmark(options: BenchOptions): Promise<{ results: Fi
           memory: recall(leaveOneOut(rows, file.pageId), file.title),
         }
         const groups = await suggest(parseTitle(file.title).terms, context, country, signal)
+        options.onGroups?.(file, groups)
         result = evaluate(file, kind, groups)
       } catch (error) {
         result = { ...evaluate(file, kind, []), error: error instanceof Error ? error.message : String(error) }

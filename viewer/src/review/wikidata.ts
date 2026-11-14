@@ -52,10 +52,10 @@ export type Group = {
  * Share of files where the first candidate of the source was one of the curators' items.
  */
 export const MEASURED_PRECISION: Record<string, string> = {
-  agreement: 'first item right in 97% of tests',
-  'earlier decisions': 'first item right in 77% of tests',
-  'file name': 'first item right in 42% of tests',
-  description: 'first item right in 7% of tests',
+  agreement: 'first item right in 94% of Zentralbibliothek tests',
+  'earlier decisions': 'first item right in 77% of Zentralbibliothek tests',
+  'file name': 'first item right in 42% of Zentralbibliothek tests',
+  description: 'first item right in 7% of Zentralbibliothek tests',
 }
 
 // Item types that a search often returns but a photograph almost never depicts.
@@ -395,7 +395,7 @@ export async function suggest(
   )
   // One term after the other: each term already sends two or three requests to the Wikidata API.
   const found: Hit[][] = []
-  for (const term of allTerms) found.push(await searchTerm(term.text, preferCountry, signal))
+  for (const term of allTerms) found.push(await searchTerm(term.text, term.country ?? preferCountry, signal))
   const qids = [
     ...new Set([
       ...found.flat().map((h) => h.qid),
@@ -424,13 +424,13 @@ export async function suggest(
     details,
   )
   const termGroups = allTerms.map((term, i) =>
-    rankTerm(term, found[i], details, preferCountry, rejections.get(term.text.toLowerCase())),
+    rankTerm(term, found[i], details, term.country ?? preferCountry, rejections.get(term.text.toLowerCase())),
   )
   return arrangeGroups(categoryGroup(context.categories, details), memoryGroup, termGroups, addressGroup)
 }
 
 /**
- * The card's order, by how often each source was right in the benchmark: agreement (97%), categories,
+ * The card's order, by how often each source was right in the benchmark: agreement (94%), categories,
  * earlier decisions of the collection (77%), the file name (42%), addresses, the description (7%).
  * Moving the collection memory up from last place raised the share of right first candidates from
  * about 52% to about 69% in a replay of the benchmark.

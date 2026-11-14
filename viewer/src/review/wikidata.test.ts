@@ -289,10 +289,10 @@ describe('arrangeGroups', () => {
     )
     expect(arranged.map((x) => x.title)).toEqual(['Same collection', '“Haus Bösch”', 'Address in the description', '“Enge”'])
     expect(arranged.map((x) => x.measured)).toEqual([
-      'first item right in 77% of tests',
-      'first item right in 42% of tests',
+      'first item right in 77% of Zentralbibliothek tests',
+      'first item right in 42% of Zentralbibliothek tests',
       undefined,
-      'first item right in 7% of tests',
+      'first item right in 7% of Zentralbibliothek tests',
     ])
   })
   it('starts with the agreement group when two sources agree', () => {
@@ -302,6 +302,6 @@ describe('arrangeGroups', () => {
       [],
       null,
     )
-    expect(arranged[0]).toMatchObject({ title: CONSENSUS_TITLE, measured: 'first item right in 97% of tests' })
+    expect(arranged[0]).toMatchObject({ title: CONSENSUS_TITLE, measured: 'first item right in 94% of Zentralbibliothek tests' })
   })
 })

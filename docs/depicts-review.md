@@ -33,8 +33,13 @@ A browser page that covers steps 1 to 5 of the pipeline for `depicts` (`P180`): 
 | `Rheinfelden AG`, `Koblenz (AG)` | canton code removed and used as a hint for Swiss items (`NW`, `NE`, `SO` only in brackets: they are also compass directions) |
 | `Schröter, Carl (1855-1939)` | person `Carl Schröter` with life dates |
 | `Dr. Fritz Mühlemann, Generalsekretär …` | person `Fritz Mühlemann` |
-| `Heiner Studer, Evangelische Volkspartei (EVP)`, `Breitinger, Robert` | a possible person's name, tried as `Robert Breitinger` first, with a warning that it can be the photographer |
+| `Heiner Studer, Evangelische Volkspartei (EVP)`, `Breitinger, Robert` | a possible person's name, tried as `Robert Breitinger` first (people only), with a warning that it can be the photographer; two single words are also searched together without that filter |
 | `gegen Süd`, `von N.`, `v. N. aus 1900 m` | removed from the terms and reported as a heading hint |
+| `CH-NB - Persien, Isfahan- Freitagsmoschee - Annemarie Schwarzenbach - SLA-Schwarzenbach-A-5-07-001.jpg` | National Library: siglum, shelf mark, collection and the photographer before the shelf mark removed; `Freitagsmoschee Isfahan` and `Isfahan` searched **in Iran** (`Persien` → `Q794`), `Persien` last |
+| `Russland, Leningrad (Sankt Petersburg)- Boote` | `Leningrad`, then the other name `Sankt Petersburg`; a topic that only names the kind of picture (`Boote`, `Menschen`, `Landschaft` …) is not searched |
+| `Bern, Kornhaus`, `Resti, Burgruine` | both parts together (`Kornhaus Bern`) besides the single parts |
+| `CH-NB-Souvenir de Berne-nbdig-18138-page001.tif` | digitised book: record and page number removed |
+| `Lokalisierung unsicher` | removed |
 
 The inventory codes (`LBS`, `Dia`, `Portr`, `Ans`, `Com`, `Hs`, …) are written from the examples in these docs, not from a full list of ETH series. A file name with an unknown code falls back to cutting a last segment that is mostly a number.
 
@@ -122,6 +127,38 @@ What changed because of this:
 
 Limits: one collection, one sample; earlier decisions are strong here because the Zentralbibliothek already has 12,651 statements, and will be weaker on a collection with few. The description and address sources are rarely right on this sample and stay last.
 
+## Second collection: Swiss National Library (14 Nov 2026)
+
+To see whether the figures hold where few files are annotated, the same benchmark ran on the Swiss National Library (`Q201787`): 14,399 files on Commons, of which 556 (4%) have `depicts`. Most of its titles follow `CH-NB - Country, Place- Topic - Photographer - shelf mark` (Annemarie Schwarzenbach's travel photographs), `CH-NB - Place, Subject - Collection Gugelmann - shelf mark` (prints) or are pages of digitised books. 150 files, seed 2026, without categories.
+
+| Run | Right first | First three | Right anywhere | No candidate |
+|---|---|---|---|---|
+| Before (file names not understood) | 45.3% | 47.3% | 49.3% | 22% |
+| After the file-name changes above | 45.3% | **50.0%** | **55.3%** | **4.7%** |
+| Zentralbibliothek, same code, for comparison | 68.0% (was 68.7%: one file) | 76.0% | 81.3% | 3.3% |
+
+By source on the National Library (after): agreement 87% right first (20% of files), earlier decisions 56% (73%), file name 22% (78%), description 0% (5%).
+
+What this says:
+
+- The file-name reader did not understand these titles at all before: it searched for `CH-NB - Russland`. Now almost every file gets candidates, and the right item appears on 6 more files out of 150, but the first candidate is not better: on many of these photographs the curators chose what is in the picture (a person, a pith helmet, a dog, a garden), which the title does not name.
+- With only 556 annotated files, earlier decisions still help: Schwarzenbach's series repeat the same people and places.
+- The rate on each group's badge is measured on the Zentralbibliothek and says so; on this collection the file name is right first half as often.
+- The Zentralbibliothek result did not move (one file of 150: `Feldbach. Thurgau` now also searches `Thurgau Feldbach`, which finds Steckborn, the municipality, and that agreement now comes before the right monastery).
+
+## Series: what is accepted on one file is offered on the others
+
+Files of one series have the same caption and another number. The page gives every file a series key (the caption without numbers and punctuation). When the reviewer accepts an item on one file, the other files of the series in the loaded batches show it at the top of their card, with the file it was accepted on; one click accepts it there too. Nothing is accepted by itself: the reviewer still looks at each photo.
+
+Measured on the files that already have depicts (a sibling = another annotated file with the same key):
+
+| Collection | Files still without depicts that have a sibling in the same batch of 20 | Annotated files with a sibling: the siblings' items contain a right one | Share of offered items that are right |
+|---|---|---|---|
+| National Library | 58% | 77% | 32% |
+| Zentralbibliothek | 9% | 97% | 80% |
+
+So on the National Library most files would get an offer, and in three cases out of four one of the offered items fits, but most offered items do not (a series of "Menschen" photos shows different people): the offer saves typing, not looking.
+
 ## Checks before export, and rejections
 
 - **Before copying**, the export asks Wikidata (`wbgetentities`, 50 items per request) whether each item still exists: redirected items are replaced by their target, deleted ones are dropped, duplicates removed. The page says what it changed.
@@ -130,7 +167,8 @@ Limits: one collection, one sample; earlier decisions are strong here because th
 ## Not done, not tested
 
 - **Speed.** 32 s for 20 files with two lookups at a time. More would trip the QLever rate limit more often.
-- **People**: only 4 people in the benchmark sample; the press photos of the ETH were not measured.
+- **People**: 4 people in the Zentralbibliothek sample, 18 in the National Library sample; the press photos of the ETH were not measured.
+- **The series offer** is unit-tested and measured on existing statements, not yet used by a reviewer on a real batch.
 - **ETH outside the aerial series**: the press photos (`Forename Surname, role`) were only seen in the first runs.
 - **QuickStatements on Commons** has not been tried with this export (see [`geocode.md`](geocode.md)). Try one file first.
 - **Earlier decisions** are only as good as the existing statements; they also copy their habits (district items such as Enge on many files).
@@ -139,6 +177,7 @@ Limits: one collection, one sample; earlier decisions are strong here because th
 ## Open questions
 
 - How many files of the ETH aerial and landscape series get a right candidate?
+- Should the measured rates on the badges be per collection? On the National Library the file name is right first in 22% of tests, against 42% on the Zentralbibliothek.
 - Should earlier decisions also be used for categories, by asking QLever for the depicts statements of the category's files?
 - Should a category item be offered when the category is broad (`General-Guisan-Quai` for a monument standing on it)?
 - Is a municipality a useful `depicts` value for an aerial photograph, or should those go to `P9149` / a location property instead?

@@ -14,6 +14,7 @@ import {
 } from './gaps'
 import { emptyContext, fetchContext, type FileContext } from './context'
 import { checkItems, describeCheck } from './verify'
+import { seriesKey, seriesOffers } from './series'
 import { parseTitle, type ParsedTitle } from './titleParse'
 import { CONSENSUS_TITLE, suggest, SWITZERLAND, wikidataUrl, type Candidate, type Group } from './wikidata'
 
@@ -143,6 +144,9 @@ export function mountReview(root: HTMLElement, options: ReviewOptions): () => vo
   let cursor: Cursor = firstCursor()
   let shown = 0
   let busy = false
+  /** Loaded files with their series key: what is accepted on one is offered on the others. */
+  let loaded: { pageId: number; title: string; key: string }[] = []
+  let syncers: (() => void)[] = []
 
   const customPlaceholder: Record<string, string> = {
     collection: 'e.g. Q190260',
@@ -265,10 +269,14 @@ export function mountReview(root: HTMLElement, options: ReviewOptions): () => vo
       )
     }
 
+    const key = seriesKey(file.title)
+    loaded.push({ pageId: file.pageId, title: file.title, key })
+    const seriesBox = el('div', 'card-series')
+    seriesBox.hidden = true
     const results = el('div', 'card-results')
     const retry = el('button', undefined, 'Retry lookup')
     retry.hidden = true
-    body.append(results, retry)
+    body.append(seriesBox, results, retry)
 
     // Manual entry and "nothing fits".
     const manual = el('div', 'card-manual')
@@ -311,9 +319,53 @@ export function mountReview(root: HTMLElement, options: ReviewOptions): () => vo
     manualInput.oninput = () => manualInput.setCustomValidity('')
     nothingBox.onchange = () => store.setRejected(file, parsed.heading, nothingBox.checked)
 
+    const renderSeries = (accepted: { qid: string }[]) => {
+      const { siblings, offers } = seriesOffers(file.pageId, key, loaded, (id) => store.get(id)?.accepted ?? [])
+      seriesBox.hidden = siblings === 0
+      if (siblings === 0) return
+      const others = siblings === 1 ? '1 other file' : `${siblings} other files`
+      seriesBox.replaceChildren(
+        el(
+          'div',
+          'term-head',
+          offers.length === 0
+            ? `Same series as ${others} here: what you accept on one is offered on the others.`
+            : `Accepted on ${others === '1 other file' ? 'a file' : 'files'} of the same series`,
+        ),
+      )
+      for (const offer of offers) {
+        const row = el('label', 'candidate')
+        const box = el('input')
+        box.type = 'checkbox'
+        box.dataset.series = offer.qid
+        box.checked = accepted.some((a) => a.qid === offer.qid)
+        box.onchange = () => {
+          if (box.checked) {
+            store.accept(file, parsed.heading, {
+              qid: offer.qid,
+              label: offer.label,
+              term: 'same series',
+              source: `accepted on File:${offer.from}`,
+              score: null,
+              reasons: ['same caption as a file already reviewed'],
+            })
+          } else {
+            store.withdraw(file.pageId, offer.qid)
+          }
+        }
+        const text = el('span', 'candidate-text')
+        const name = el('span', 'candidate-name')
+        name.append(el('strong', undefined, offer.label), ' ', link(wikidataUrl(offer.qid), offer.qid))
+        text.append(name, el('span', 'candidate-why', `accepted on ${offer.from}`))
+        row.append(box, text)
+        seriesBox.append(row)
+      }
+    }
+
     const sync = () => {
       const decision = store.get(file.pageId)
       const accepted = decision?.accepted ?? []
+      renderSeries(accepted)
       card.classList.toggle('accepted', accepted.length > 0)
       card.classList.toggle('rejected', decision?.rejected ?? false)
       nothingBox.checked = decision?.rejected ?? false
@@ -366,7 +418,7 @@ export function mountReview(root: HTMLElement, options: ReviewOptions): () => vo
     cards.append(card)
     const unsubscribe = store.subscribe(sync)
     sync()
-    return { runLookup, unsubscribe }
+    return { runLookup, unsubscribe, sync }
   }
 
   let unsubscribers: (() => void)[] = []
@@ -387,6 +439,8 @@ export function mountReview(root: HTMLElement, options: ReviewOptions): () => vo
       shown = 0
       unsubscribers.forEach((fn) => fn())
       unsubscribers = []
+      loaded = []
+      syncers = []
       cards.replaceChildren()
     }
     if (!selector) return
@@ -422,11 +476,12 @@ export function mountReview(root: HTMLElement, options: ReviewOptions): () => vo
       problems = ['categories, descriptions and earlier decisions']
     }
     if (signal.aborted) return
-    const lookups = files.map((file) => {
-      const card = renderCard(file, contexts.get(file.pageId) ?? emptyContext())
-      unsubscribers.push(card.unsubscribe)
-      return card.runLookup
-    })
+    const rendered = files.map((file) => renderCard(file, contexts.get(file.pageId) ?? emptyContext()))
+    for (const card of rendered) unsubscribers.push(card.unsubscribe)
+    syncers.push(...rendered.map((card) => card.sync))
+    // A card learns about the later files of its series only now.
+    syncers.forEach((sync) => sync())
+    const lookups = rendered.map((card) => card.runLookup)
     // Two files at a time, each worker pausing between files: more trips the endpoints' rate limits.
     let failed = 0
     let next = 0
